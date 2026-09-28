@@ -1,0 +1,104 @@
+.sideBar {
+    background-color: #0D1933;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+
+}
+
+.users {
+    padding-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+}
+
+.infoUser h1,
+.infoUser p {
+    margin: 0;
+    color: #EEEDF3;
+}
+
+.infoUser h1 {
+    font-size: 1.1rem;
+}
+
+.infoUser p {
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.imgUser {
+    width: 80px;
+    height: 30px;
+    color:#EEEDF3;
+    flex: 0 0 30px;
+}
+
+
+.footerSidebar {
+    color:#EEEDF3;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.footerSidebar p {
+    margin: 0;
+}
+
+.menu {
+    padding-top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+    color: #EEEDF3;
+    padding-left: 50px;
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color:#EEEDF3;
+    text-decoration: none;
+}
+
+.buttonTheme {
+    border: none;
+    border-radius: 5px;
+    background-color: #00326A;
+    color: #EEEDF3;
+    font-size: 16px;
+}
+
+.logOut {
+    text-decoration: none;
+    color:#EEEDF3;
+}
+
+.buttonTheme {
+    cursor: pointer;
+}
+
+.buttonTheme,
+.logOut {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+}
+
+.buttonTheme {
+    cursor: pointer;
+}
