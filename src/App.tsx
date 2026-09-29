@@ -1,20 +1,23 @@
-// import { SideBar } from "./components/sideBar";
-import './styles/theme.css';
-import './styles/global.css';
-// import { Users } from "./components/users";
-// import { Dashboard } from "./components/dashboard";
+import { useState } from "react";
+import "./styles/theme.css";
+import "./styles/global.css";
+import { Dashboard } from "./components/dashboard";
 import { Login } from "./components/login";
+import { SideBar } from "./components/sideBar";
 
 export function App() {
+  const [loginSucesso, setLoginSucesso] = useState(false);
+
   return (
     <>
-      {/* <SideBar /> */}
-      <main className="pageContent">
-        <Login />
-        {/* <Dashboard/> */}
-        {/* <Users/> */}
+      {loginSucesso && <SideBar />}
+      <main className={`pageContent ${loginSucesso ? "pageContentWithSidebar" : ""}`}>
+        {loginSucesso ? (
+          <Dashboard />
+        ) : (
+          <Login onLoginSuccess={() => setLoginSucesso(true)} />
+        )}
       </main>
     </>
-  )
+  );
 }
-

@@ -2,7 +2,11 @@ import { useState } from "react";
 import styles from "./styles.module.css"
 import { EyeIcon } from "lucide-react";
 
-export function Login() {
+type LoginProps = {
+    onLoginSuccess: () => void;
+};
+
+export function Login({ onLoginSuccess }: LoginProps) {
     const [mostrarSenha, setMostrarSenha] = useState(false);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -24,10 +28,9 @@ export function Login() {
         } else {
             const dados = await res.json();
             console.log(dados);
-            console.log("login feito")
+            console.log("login feito");
+            onLoginSuccess();
         }
-
-
     }
     return (
         <div className={styles.loginPage}>

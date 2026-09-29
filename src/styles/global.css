@@ -9,3 +9,6 @@ body{
   padding: 24px;
   /* background-color: red; */
 }
+.pageContentWithSidebar {
+    margin-left: 240px;
+}
