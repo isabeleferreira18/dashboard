@@ -1,0 +1,10 @@
+.dashboardPage {
+    min-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+}
+
+.title{
+    width: auto;
+    text-align: left;
+}

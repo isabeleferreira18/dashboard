@@ -5,8 +5,29 @@ import { EyeIcon } from "lucide-react";
 export function Login() {
     const [mostrarSenha, setMostrarSenha] = useState(false);
 
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                cpf: formData.get("cpf"),
+                password: formData.get("password"),
+            })
+        });
+        if (!res.ok) {
+            console.error("Falha no login:", res.status);
+            return;
+        } else {
+            const dados = await res.json();
+            console.log(dados);
+            console.log("login feito")
+        }
+
+
     }
     return (
         <div className={styles.loginPage}>
@@ -19,8 +40,11 @@ export function Login() {
                     <label htmlFor="CPF"> CPF </label>
                     <input id="cpf" name="cpf" type="text"
                         inputMode="numeric"
-                        maxLength={14} required className={styles.inputForm}
-                        placeholder=" 000.000.000-00" />
+                        maxLength={14}
+                        pattern="[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}"
+                        title="Digite o CPF no formato 000.000.000-00"
+                        required className={styles.inputForm}
+                        placeholder="000.000.000-00" />
 
                     <label htmlFor="password"> Senha </label>
                     <div className={styles.campoSenha}>
@@ -36,7 +60,7 @@ export function Login() {
                             aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
                             aria-pressed={mostrarSenha}
                         >
-                           <EyeIcon> </EyeIcon>
+                            <EyeIcon> </EyeIcon>
                         </button>
                     </div>
 
