@@ -1,4 +1,13 @@
+.loginPage {
+    min-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 .buttonLogin {
+    margin-top: 24px;
     width: 300px;
     min-height: 44px;
     padding: 10px 16px;
@@ -16,15 +25,69 @@
     background-color: #00458f;
 }
 
-.formLogin{
-    background-color: red;
+.formLogin {
+    background-color: white;
+    width: 600px;
+    height: 600px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0;
+
 }
 
-
-.title{
+.title {
     align-items: center;
     display: flex;
     justify-content: center;
-    /* background-color: red; */
     color: #0D1933;
+    margin: 0 16px;
+    transform: translateY(-40px);
+}
+
+.inputForm {
+    margin-top: -8px;
+    border-radius: 5px;
+    border-color: #0D1933;
+    width: 300px;
+    min-height: 30px;
+}
+
+
+.loginContent {
+    display: flex;
+    margin: 0;
+    gap: 0;
+}
+
+.formLogin label {
+    width: 300px;
+    text-align: left;
+}
+.campoSenha {
+    position: relative;
+    width: fit-content;
+}
+
+.botaoOlho {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #0D1933;
+    cursor: pointer;
+}
+
+.botaoOlho svg {
+    width: 18px;
+    height: 18px;
 }

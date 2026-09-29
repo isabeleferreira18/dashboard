@@ -6,7 +6,7 @@ import { Login } from "./components/login";
 export function App() {
   return (
     <>
-      <SideBar />
+      {/* <SideBar /> */}
       <main className="pageContent">
         <Login />
       </main>
