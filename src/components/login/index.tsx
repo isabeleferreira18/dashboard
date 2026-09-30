@@ -11,25 +11,30 @@ export function Login({ onLoginSuccess }: LoginProps) {
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                cpf: formData.get("cpf"),
-                password: formData.get("password"),
-            })
-        });
-        if (!res.ok) {
-            console.error("Falha no login:", res.status);
-            return;
-        } else {
-            const dados = await res.json();
-            console.log(dados);
-            console.log("login feito");
-            onLoginSuccess();
+        try {
+            const formData = new FormData(event.currentTarget);
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    cpf: formData.get("cpf"),
+                    password: formData.get("password"),
+                })
+            });
+            if (!res.ok) {
+                alert("CPF ou senha inválidos");
+                return;
+            } else {
+                const dados = await res.json();
+                console.log(dados);
+                console.log("login feito");
+                onLoginSuccess();
+            }
+        } catch (error: unknown) {
+            console.error("Falha de conexão no login:", error);
         }
     }
     return (
