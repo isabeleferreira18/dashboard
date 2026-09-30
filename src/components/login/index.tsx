@@ -29,18 +29,19 @@ export function Login({ onLoginSuccess }: LoginProps) {
                 return;
             } else {
                 const dados = await res.json();
-                console.log(dados);
-                console.log("login feito");
-                onLoginSuccess();
+                //console.log("login feito");
+              localStorage.setItem('accessToken', dados.accessToken);
+              localStorage.setItem('role', dados.user.role);
+              onLoginSuccess();
             }
         } catch (error: unknown) {
-            console.error("Falha de conexão no login:", error);
+            alert("Falha de conexão no login:" + error);
+        } finally{
+            
         }
     }
     return (
         <div className={styles.loginPage}>
-
-
             <div className={styles.loginContent}>
                 <form onSubmit={handleSubmit} className={styles.formLogin}>
                     <h1 className={styles.title}> BEM VINDO </h1>
@@ -71,7 +72,6 @@ export function Login({ onLoginSuccess }: LoginProps) {
                             <EyeIcon> </EyeIcon>
                         </button>
                     </div>
-
                     <button type="submit" className={styles.buttonLogin}>Entrar</button>
                 </form>
             </div>

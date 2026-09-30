@@ -18,8 +18,8 @@ export function Users() {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/health`);
             const dados: { status: string } = await res.json();
 
-        console.log("HTTP do health:", res.status);
-        console.log("JSON do health:", dados);
+            console.log("HTTP do health:", res.status);
+            console.log("JSON do health:", dados);
 
             return res.ok && dados.status === "ok";
         } catch (err) {
@@ -39,8 +39,8 @@ export function Users() {
                     console.error("A API não retornou status ok. Usuários não foram buscados");
                     return;
                 }
+
                 const res = await fetch(`${import.meta.env.VITE_API_URL}/users`);
-                
 
                 if (!res.ok) {
                     throw new Error(`Erro HTTP: ${res.status}`);
@@ -57,9 +57,9 @@ export function Users() {
 
         void listarUsers();
     }, []);
-    // return (
-    //     <>{JSON.stringify({ carregando, users }, null, 2)}</>
-    // )
+    return (
+        <>{JSON.stringify({ carregando, users }, null, 2)}</>
+    )
 }
 
 
