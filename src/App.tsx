@@ -9,15 +9,20 @@ export function App() {
   const auth = useAuthContext();
 
   if (auth.isLoading) {
-    return ( <p> Verificando sessão... </p>);
+    return (<p> Verificando sessão... </p>);
   }
 
   if (auth.user !== null) {
     return (
       <>
         <SideBar />
-        <Dashboard />
+        <main className="pageContentWithSidebar" >
+          <Dashboard />
+        </main>
       </>
     );
-  } return <Login />;
+  } return (
+    <main className="pageContent" >
+      <Login />
+    </main>)
 }

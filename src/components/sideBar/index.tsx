@@ -26,11 +26,12 @@ export function SideBar() {
                     <ChartLine />
                     <span>Vendas</span>
                 </a>
-
-                <a className={styles.menuItem} href="#">
-                    <UserRound />
-                    <span>Usuários</span>
-                </a>
+                {auth.user?.role === "DEVELOPER" && (
+                    <a className={styles.menuItem} href="#">
+                        <UserRound />
+                        <span>Usuários</span>
+                    </a>
+                )}
 
             </div>
 

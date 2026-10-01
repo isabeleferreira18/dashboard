@@ -2,9 +2,13 @@
     min-height: calc(100vh - 48px);
     display: flex;
     flex-direction: column;
+    margin: 16px 32px 16px 32px;
+    /* background-color: red; */
 }
 
-.title{
+.title {
     width: auto;
+    padding: 10px;
     text-align: left;
+     /* background-color: red;  */
 }
