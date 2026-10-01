@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import styles from "./styles.module.css"
 import { EyeIcon } from "lucide-react";
 import { useAuthContext } from "../../contexts/useAuthContext";

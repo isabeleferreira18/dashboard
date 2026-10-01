@@ -47,6 +47,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     function logout() {
         localStorage.removeItem('accessToken');
         setUser(null);
+        localStorage.removeItem('role');
     }
 
     async function loginAuth(cpf: string, password: string) {

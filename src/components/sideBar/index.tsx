@@ -1,7 +1,9 @@
+import { useAuthContext } from "../../contexts/useAuthContext";
 import styles from "./styles.module.css"
 import { ChartLine, House, LogOut, UserRound } from 'lucide-react';
 
 export function SideBar() {
+    const auth = useAuthContext();
     return (
         <div className={styles.sideBar}>
 
@@ -40,7 +42,7 @@ export function SideBar() {
 
                 <a className={styles.logOut} href="#" >
                     <LogOut size={18} />
-                    {/* <button onClick={LogOut()}>Sair</button> */}
+                    <button onClick={auth.logout}>Sair</button>
                 </a>
             </div>
 
