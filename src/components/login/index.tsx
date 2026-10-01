@@ -1,45 +1,25 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from "./styles.module.css"
 import { EyeIcon } from "lucide-react";
+import { useAuthContext } from "../../contexts/useAuthContext";
 
-type LoginProps = {
-    onLoginSuccess: () => void;
-};
-
-export function Login({ onLoginSuccess }: LoginProps) {
+export function Login() {
     const [mostrarSenha, setMostrarSenha] = useState(false);
+    const auth = useAuthContext();
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        try {
-            const formData = new FormData(event.currentTarget);
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
 
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    cpf: formData.get("cpf"),
-                    password: formData.get("password"),
-                })
-            });
-            if (!res.ok) {
-                alert("CPF ou senha inválidos");
-                return;
-            } else {
-                const dados = await res.json();
-                //console.log("login feito");
-              localStorage.setItem('accessToken', dados.accessToken);
-              localStorage.setItem('role', dados.user.role);
-              onLoginSuccess();
-            }
-        } catch (error: unknown) {
-            alert("Falha de conexão no login:" + error);
-        } finally{
-            
+        const formData = new FormData(event.currentTarget);
+        const cpf = formData.get("cpf");
+        const password = formData.get("password");
+
+        if (typeof cpf !== "string" || typeof password !== "string") {
+            return;
         }
-    }
+        auth.loginAuth(cpf, password);
+    };
+
     return (
         <div className={styles.loginPage}>
             <div className={styles.loginContent}>

@@ -40,7 +40,7 @@ export function SideBar() {
 
                 <a className={styles.logOut} href="#" >
                     <LogOut size={18} />
-                    <span>Sair</span>
+                    {/* <button onClick={LogOut()}>Sair</button> */}
                 </a>
             </div>
 
