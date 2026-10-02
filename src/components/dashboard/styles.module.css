@@ -1,14 +1,75 @@
 .dashboardPage {
-    min-height: calc(100vh - 48px);
+    min-height: calc(100vh - 32px);
     display: flex;
     flex-direction: column;
-    margin: 16px 32px 16px 32px;
-    /* background-color: red; */
+    margin: 16px 32px;
+}
+
+.dashboardHeader {
+    min-height: 68px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 0 28px;
+    background-color: #f5f5f5;
 }
 
 .title {
-    width: auto;
-    padding: 10px;
-    text-align: left;
-     /* background-color: red;  */
+    margin: 0;
+    color: #1C3C63;
+    font-size: 32px;
+}
+
+.dashboardFiltro {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calendarIcon {
+    width: 25px;
+    height: 25px;
+    margin-right: 1px;
+    color: #bdbdbd;
+    stroke-width: 3;
+}
+
+.dashboardFiltro input {
+    box-sizing: border-box;
+    width: 120px;
+    height: 26px;
+    padding: 0 8px;
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    background: transparent;
+    color: #555;
+    font: inherit;
+    font-size: 11px;
+    text-align: center;
+}
+
+.dashboardFiltro input::placeholder {
+    color: #777;
+    opacity: 1;
+}
+
+.dateSeparator {
+    color: #bdbdbd;
+    font-size: 13px;
+}
+
+.dashboardFiltro button {
+    width: 86px;
+    height: 26px;
+    margin-left: 5px;
+    border: 0;
+    border-radius: 5px;
+    background-color: #1d3d66;
+    color: #fff;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
 }
