@@ -96,29 +96,33 @@ export function Dashboard() {
             </div>
 
             <div className="miniCards">
-                <Card title="Receita Bruta">
+                <Card >
+                    <h1>Receita Bruta</h1>
                     <h1>{dados?.cards.grossRevenue ?? "—"}</h1>
                 </Card>
-                <Card title="Receita Líquida">
+                <Card >
+                    <h1>Receita Líquida</h1>
                     <h1>{dados?.cards.netRevenue ?? "—"}</h1>
                 </Card>
-                <Card title="Total de vendas">
+                <Card>
+                    <h1>Total de vendas</h1>
                     <h1>{dados?.cards.salesCount ?? "—"}</h1>
                 </Card>
-                <Card title="Ticket Médio">
+                <Card>
+                    <h1>Total de vendas</h1>
                     <h1>{dados?.cards.averageTicket ?? "—"}</h1>
                 </Card>
             </div>
 
             <div className="graficosCards">
-                <Card title="Vendas por Status"><h1>aaaa</h1></Card>
-                <Card title="Vendas por Bandeira"><h1>aaaa</h1></Card>
-                <Card title="Vendas por Dia"><h1>aaaa</h1></Card>
+                <Card><h1> GRÁFICO </h1></Card>
+                <Card><h1> GRÁFICO </h1></Card>
+                <Card><h1> GRÁFICO </h1></Card>
             </div>
 
             <div className="CardTabela">
-                <Card title="Últimas vendas">
-
+                <Card>
+                    <h1> VAI TER UMA TABELA AQUI </h1>
                 </Card>
             </div>
         </div>

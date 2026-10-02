@@ -1,19 +1,7 @@
 .card {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 24px;
     border-radius: 8px;
     background-color: #fff;
-    margin: 0 0 20px 0;
-   
 }
 
-.title {
-    margin: 0 0 20px;
-    color: #0d1933;
-    font-size: 1.25rem;
-}
 
-.content {
-    width: 100%;
-}
+
