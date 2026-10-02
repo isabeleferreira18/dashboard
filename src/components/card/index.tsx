@@ -8,9 +8,9 @@ type CardProps = {
 
 export function Card({ children, className }: CardProps) {
     return (
-        <section className={`${styles.card} ${className ?? ""}`}>
-            <div className={styles.content}>{children}</div>
-        </section>
+        <div className={`${styles.card} ${className ?? ""}`}>
+            {children}
+        </div>
     );
 }
 

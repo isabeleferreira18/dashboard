@@ -122,7 +122,7 @@ export function Dashboard() {
 
             <div className="CardTabela">
                 <Card>
-                    <h1> VAI TER UMA TABELA AQUI </h1>
+                    <h1> TABELA </h1>
                 </Card>
             </div>
         </div>
