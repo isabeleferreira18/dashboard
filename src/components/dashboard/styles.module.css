@@ -107,10 +107,21 @@
     stroke-width: 2.5;
 }
 
-.grossIcon { background-color: #20c49a; }
-.netIcon { background-color: #1d3d66; }
-.salesIcon { background-color: #8b63df; }
-.ticketIcon { background-color: #ffca16; }
+.grossIcon {
+    background-color: #20c49a;
+}
+
+.netIcon {
+    background-color: #1d3d66;
+}
+
+.salesIcon {
+    background-color: #8b63df;
+}
+
+.ticketIcon {
+    background-color: #ffca16;
+}
 
 .miniCardContent {
     min-width: 0;
@@ -127,12 +138,25 @@
 }
 
 
-.graficosCards{
-    display: flex;
-    justify-content: space-between;
+.graficosCards {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin: 12px 28px 16px;
+}
+
+.graficosCards h1 {
+    padding-left: 24px;
+    color: #1C3C63;
+    font-size: 24px;
+}
+
+.CardTabela {
     margin: 16px 32px;
 }
 
-.CardTabela{
-    margin: 16px 32px;
+.CardTabela h1 {
+    padding-left: 24px;
+    color: #1C3C63;
+    font-size: 24px;
 }

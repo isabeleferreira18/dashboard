@@ -3,6 +3,9 @@ import type { FormEvent } from "react";
 import { Banknote, CalendarDays, ChartNoAxesColumn, DollarSign } from "lucide-react";
 import { Card } from "../card";
 import styles from "./styles.module.css";
+import { SalesByDay } from "../graficos/salesByDay";
+import { SalesByStatus } from "../graficos/salesByStatus";
+import { SalesByBrand } from "../graficos/salesByBrand";
 
 type DashboardData = {
     cards: {
@@ -22,6 +25,10 @@ type DashboardData = {
         date: string;
         quantity: number;
     }[];
+    salesByStatus:{
+        quantity: number;
+        status: string;
+    } [];
 };
 
 export function Dashboard() {
@@ -129,12 +136,19 @@ export function Dashboard() {
             </div>
 
             <div className={styles.graficosCards}>
-                <Card><h1> Vendas por Status </h1></Card>
-
-                <Card><h1> Vendas por Bandeira </h1></Card>
-                <Card><h1> Vendas por Status </h1></Card>
+                <Card>
+                    <h1> Vendas por Dia </h1>
+                    <SalesByDay data={dados?.salesByDay ?? []} />
+                </Card>
+                
+                <Card><h1> Vendas por Bandeira </h1>
+                  <SalesByBrand data={dados?.salesByBrand ?? []} />
+                </Card>
+                <Card><h1> Vendas por Status </h1>
+                  <SalesByStatus data={dados?.salesByStatus ?? []} />
+                </Card>
             </div>
-            
+
             <div className={styles.CardTabela}>
                 <Card>
                     <h1> Últimas vendas </h1>
