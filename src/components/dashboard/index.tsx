@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { CalendarDays } from "lucide-react";
+import { Banknote, CalendarDays, ChartNoAxesColumn, DollarSign } from "lucide-react";
 import { Card } from "../card";
 import styles from "./styles.module.css";
 
@@ -50,7 +50,9 @@ export function Dashboard() {
             throw new Error(`Falha ao buscar dados do dashboard (HTTP ${res.status})`);
         }
 
-        return res.json() as Promise<DashboardData>;
+        const resultado = (await res.json()) as DashboardData;
+        // console.log("Resposta da API", resultado);
+        return resultado;
     }
 
     useEffect(() => {
@@ -95,34 +97,47 @@ export function Dashboard() {
                 </div>
             </div>
 
-            <div className="miniCards">
-                <Card >
-                    <h1>Receita Bruta</h1>
-                    <h1>{dados?.cards.grossRevenue ?? "—"}</h1>
+            <div className={styles.miniCards}>
+                <Card className={styles.miniCard}>
+                    <span className={`${styles.miniCardIcon} ${styles.grossIcon}`}><DollarSign /></span>
+                    <div className={styles.miniCardContent}>
+                        <span>Receita Bruta</span>
+                        <strong>{dados?.cards.grossRevenue ?? "—"}</strong>
+                    </div>
                 </Card>
-                <Card >
-                    <h1>Receita Líquida</h1>
-                    <h1>{dados?.cards.netRevenue ?? "—"}</h1>
+                <Card className={styles.miniCard}>
+                    <span className={`${styles.miniCardIcon} ${styles.netIcon}`}><DollarSign /></span>
+                    <div className={styles.miniCardContent}>
+                        <span>Receita Líquida</span>
+                        <strong>{dados?.cards.netRevenue ?? "—"}</strong>
+                    </div>
                 </Card>
-                <Card>
-                    <h1>Total de vendas</h1>
-                    <h1>{dados?.cards.salesCount ?? "—"}</h1>
+                <Card className={styles.miniCard}>
+                    <span className={`${styles.miniCardIcon} ${styles.salesIcon}`}><ChartNoAxesColumn /></span>
+                    <div className={styles.miniCardContent}>
+                        <span>Total de Vendas</span>
+                        <strong>{dados?.cards.salesCount ?? "—"}</strong>
+                    </div>
                 </Card>
-                <Card>
-                    <h1>Total de vendas</h1>
-                    <h1>{dados?.cards.averageTicket ?? "—"}</h1>
+                <Card className={styles.miniCard}>
+                    <span className={`${styles.miniCardIcon} ${styles.ticketIcon}`}><Banknote /></span>
+                    <div className={styles.miniCardContent}>
+                        <span>Ticket Médio</span>
+                        <strong>{dados?.cards.averageTicket ?? "—"}</strong>
+                    </div>
                 </Card>
             </div>
 
-            <div className="graficosCards">
-                <Card><h1> GRÁFICO </h1></Card>
-                <Card><h1> GRÁFICO </h1></Card>
-                <Card><h1> GRÁFICO </h1></Card>
-            </div>
+            <div className={styles.graficosCards}>
+                <Card><h1> Vendas por Status </h1></Card>
 
-            <div className="CardTabela">
+                <Card><h1> Vendas por Bandeira </h1></Card>
+                <Card><h1> Vendas por Status </h1></Card>
+            </div>
+            
+            <div className={styles.CardTabela}>
                 <Card>
-                    <h1> TABELA </h1>
+                    <h1> Últimas vendas </h1>
                 </Card>
             </div>
         </div>

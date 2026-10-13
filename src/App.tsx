@@ -1,4 +1,4 @@
-import "./styles/theme.css";
+
 import "./styles/global.css";
 import { Login } from "./components/login";
 import { SideBar } from "./components/sideBar";

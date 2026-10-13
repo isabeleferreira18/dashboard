@@ -73,3 +73,66 @@
     font-weight: 600;
     cursor: pointer;
 }
+
+.miniCards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin: 12px 28px 16px;
+}
+
+.miniCard {
+    min-width: 0;
+    min-height: 84px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 26px;
+}
+
+.miniCardIcon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    color: #fff;
+}
+
+.miniCardIcon svg {
+    width: 26px;
+    height: 26px;
+    stroke-width: 2.5;
+}
+
+.grossIcon { background-color: #20c49a; }
+.netIcon { background-color: #1d3d66; }
+.salesIcon { background-color: #8b63df; }
+.ticketIcon { background-color: #ffca16; }
+
+.miniCardContent {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    color: #5c5a5a;
+    font-size: 14px;
+}
+
+.miniCardContent strong {
+    font-size: 20px;
+    line-height: 1.1;
+}
+
+
+.graficosCards{
+    display: flex;
+    justify-content: space-between;
+    margin: 16px 32px;
+}
+
+.CardTabela{
+    margin: 16px 32px;
+}
