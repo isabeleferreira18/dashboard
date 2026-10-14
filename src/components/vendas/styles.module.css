@@ -1,0 +1,76 @@
+.vendasPage {
+    min-height: calc(100vh - 32px);
+    display: flex;
+    flex-direction: column;
+    margin: 16px 32px;
+}
+
+.title {
+    margin: 0;
+    color: #1C3C63;
+    font-size: 32px;
+    padding: 28px;
+}
+
+.gruposVendas {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.grupoVendas {
+    min-width: 0;
+}
+
+.dataGrupo {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 10px 16px;
+    border: 1px solid #dce3ec;
+    border-radius: 6px 6px 0 0;
+    background: #f0f2f5;
+    color: #555;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.enteAutocomplete {
+    position: relative;
+}
+
+.sugestoesEnte {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 10;
+    box-sizing: border-box;
+    width: 100%;
+    max-height: 220px;
+    margin: 0;
+    padding: 4px 0;
+    overflow-y: auto;
+    list-style: none;
+    border: 1px solid #dce3ec;
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgb(13 25 51 / 12%);
+}
+
+.sugestoesEnte button {
+    width: 100%;
+    padding: 8px 12px;
+    border: 0;
+    background: transparent;
+    color: #555;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sugestoesEnte button:hover,
+.sugestoesEnte button:focus-visible {
+    outline: none;
+    background: #f0f2f5;
+}
+
+

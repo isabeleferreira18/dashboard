@@ -34,7 +34,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
                 }
 
                 const dados = await res.json();
-                setUser({ role: dados.role });
+                setUser({ name: dados.name, role: dados.role });
             } catch (error: unknown) {
                 alert("Falha na validação da sessão:" + error);
             }
@@ -75,7 +75,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
             const dados = await res.json();
             localStorage.setItem("accessToken", dados.accessToken);
-            setUser({ role: dados.user.role });
+            setUser({ name: dados.user.name, role: dados.user.role });
         } catch (error: unknown) {
             alert("Falha de conexão no login:" + error);
         }
