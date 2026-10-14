@@ -2,7 +2,14 @@ import { useAuthContext } from "../../contexts/useAuthContext";
 import styles from "./styles.module.css"
 import { ChartLine, House, LogOut, UserRound } from 'lucide-react';
 
-export function SideBar() {
+type Pagina = "dashboard" | "vendas";
+
+type SideBarProps = {
+    onNavigate: (pagina: Pagina) => void;
+    paginaAtual: Pagina;
+};
+
+export function SideBar({ onNavigate, paginaAtual }: SideBarProps) {
     const auth = useAuthContext();
     return (
         <div className={styles.sideBar}>
@@ -11,24 +18,34 @@ export function SideBar() {
 
                 <UserRound className={styles.imgUser} />
                 <div className={styles.infoUser}>
-                    <h1> Isabele Ferreira </h1>
-                    <p> Desenvolvedor(a) </p>
+                    <h1> {auth.user.name} </h1>
+                    <p> {auth.user.role} </p>
                 </div>
             </div>
 
             <div className={styles.menu}>
-                <a className={styles.menuItem} href="#">
+                <button
+                    className={`${styles.menuItem} ${paginaAtual === "dashboard" ? styles.menuItemAtivo : ""}`}
+                    type="button"
+                    aria-current={paginaAtual === "dashboard" ? "page" : undefined}
+                    onClick={() => onNavigate("dashboard")}
+                >
                     <House />
                     <span>Dashboard</span>
-                </a>
+                </button>
 
-                <a className={styles.menuItem} href="#">
+                <button
+                    className={`${styles.menuItem} ${paginaAtual === "vendas" ? styles.menuItemAtivo : ""}`}
+                    type="button"
+                    aria-current={paginaAtual === "vendas" ? "page" : undefined}
+                    onClick={() => onNavigate("vendas")}
+                >
                     <ChartLine />
                     <span>Vendas</span>
-                </a>
+                </button>
                 {auth.user?.role === "DEVELOPER" && (
-                    <a className={styles.menuItem} href="#">
-                        <UserRound />
+                    <a className={styles.menuItem}  href="#">
+                        <UserRound  className={styles.imgUser}/>
                         <span>Usuários</span>
                     </a>
                 )}
@@ -43,10 +60,9 @@ export function SideBar() {
 
                 <a className={styles.logOut} href="#" >
                     <LogOut size={18} />
-                    <button onClick={auth.logout}>Sair</button>
+                    <button onClick={auth.logout} >Sair</button>
                 </a>
             </div>
-
         </div>
     )
 }

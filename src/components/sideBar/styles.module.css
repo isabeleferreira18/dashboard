@@ -29,11 +29,10 @@
 .infoUser p {
     margin: 0;
     color: #EEEDF3;
-    
 }
 
 .infoUser h1 {
-    font-size: 0.8rem;
+    font-size: 1rem;
 }
 
 .infoUser p {
@@ -46,6 +45,9 @@
     height: 30px;
     color: #EEEDF3;
     flex: 0 0 30px;
+    fill: #fff;
+    stroke: #0D1933;
+    stroke-width: 1.5px;
 }
 
 
@@ -66,13 +68,7 @@
 .footerSidebar p {
     margin: 0;
 }
-.menuItem {
-    box-sizing: border-box;
-    height: 37.15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+
 
 .menu {
     box-sizing: border-box;
@@ -89,15 +85,44 @@
 
 .menuItem {
     box-sizing: border-box;
-    height: 37.15px;
+    width: 100%;
+    min-height: 46px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     padding: 0 16px;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 17px;
+    font-weight: 500;
     color: #EEEDF3;
     text-decoration: none;
-    justify-content: center;
-   
+    justify-content: flex-start;
+    cursor: pointer;
+    border-radius: 9px;
+    transition: background-color 150ms ease;
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+    background-color: rgb(255 255 255 / 9%);
+}
+
+.menuItem:focus-visible {
+    outline: 2px solid #a970ff;
+    outline-offset: 2px;
+}
+
+.menuItemAtivo,
+.menuItemAtivo:hover {
+    background-color: #1e426b;
+}
+
+.menuItem svg {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
 }
 
 .buttonTheme {
