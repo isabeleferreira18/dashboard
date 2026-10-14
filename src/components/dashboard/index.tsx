@@ -6,6 +6,7 @@ import styles from "./styles.module.css";
 import { SalesByDay } from "../graficos/salesByDay";
 import { SalesByStatus } from "../graficos/salesByStatus";
 import { SalesByBrand } from "../graficos/salesByBrand";
+import { TabelaVendas } from "../tabelas";
 
 type DashboardData = {
     cards: {
@@ -25,14 +26,34 @@ type DashboardData = {
         date: string;
         quantity: number;
     }[];
-    salesByStatus:{
+    salesByStatus: {
         quantity: number;
         status: string;
-    } [];
+    }[];
+};
+
+type Venda = {
+    id: number;
+    amount: number;
+    brand: string;
+    publicEntity: {
+        id: number;
+        name: string
+    };
+    status: string;
+    createdAt: string;
+}
+
+type VendasResposta = {
+    groups: {
+        date: string;
+        sales: Venda[];
+    }[];
 };
 
 export function Dashboard() {
     const [dados, setDados] = useState<DashboardData | null>(null);
+    const [vendas, setVendas] = useState<Venda[]>([]);
 
     async function getDashboard(startDate?: string, endDate?: string): Promise<DashboardData> {
         const params = new URLSearchParams();
@@ -61,6 +82,32 @@ export function Dashboard() {
         // console.log("Resposta da API", resultado);
         return resultado;
     }
+    async function getVendas(startDate?: string, endDate?: string): Promise<VendasResposta> {
+        const params = new URLSearchParams();
+        if (startDate) params.set("startDate", startDate);
+        if (endDate) params.set("endDate", endDate);
+
+        const query = params.size > 0 ? `?${params.toString()}` : "";
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+            throw new Error("Token de autenticação não encontrado. Faça login novamente.");
+        }
+
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/sales${query}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+            },
+        });
+
+        if (!res.ok) {
+            throw new Error(`Falha ao buscar dados do dashboard (HTTP ${res.status})`);
+        }
+
+        const resultado = (await res.json()) as VendasResposta;
+        return resultado;
+    }
 
     useEffect(() => {
         getDashboard()
@@ -68,7 +115,15 @@ export function Dashboard() {
             .catch((error: unknown) => {
                 console.error("Erro ao carregar o dashboard:", error);
             });
+        getVendas()
+            .then((resultado) => {
+                setVendas(resultado.groups.flatMap((grupo) => grupo.sales));
+            })
+            .catch((error: unknown) => {
+                console.error("Erro ao carregar as Vendas:", error);
+            });
     }, []);
+
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -84,6 +139,8 @@ export function Dashboard() {
         try {
             const resultado = await getDashboard(startDate, endDate);
             setDados(resultado);
+            const resultadoVendas = await getVendas(startDate, endDate);
+            setVendas(resultadoVendas.groups.flatMap((grupo) => grupo.sales));
         } catch (error: unknown) {
             console.error("Erro ao buscar dados do dashboard:", error);
         }
@@ -140,18 +197,21 @@ export function Dashboard() {
                     <h1> Vendas por Dia </h1>
                     <SalesByDay data={dados?.salesByDay ?? []} />
                 </Card>
-                
+
                 <Card><h1> Vendas por Bandeira </h1>
-                  <SalesByBrand data={dados?.salesByBrand ?? []} />
+                    <SalesByBrand data={dados?.salesByBrand ?? []} />
                 </Card>
                 <Card><h1> Vendas por Status </h1>
-                  <SalesByStatus data={dados?.salesByStatus ?? []} />
+                    <SalesByStatus data={dados?.salesByStatus ?? []} />
                 </Card>
             </div>
 
             <div className={styles.CardTabela}>
                 <Card>
                     <h1> Últimas vendas </h1>
+                    <div className={styles.contentTable}>
+                    <TabelaVendas vendas={vendas}/>
+                    </div>
                 </Card>
             </div>
         </div>

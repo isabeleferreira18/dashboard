@@ -1,0 +1,71 @@
+.tabelaVendas {
+    width: 100%;
+    max-height: 212px; 
+    overflow: auto;
+    border: 1px solid #dce3ec;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.tabela {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
+    color: #555;
+    font-size: 12px;
+    text-align: left;
+}
+
+.tabela th,
+.tabela td {
+    height: 30px;
+    box-sizing: border-box;
+    padding: 5px 12px;
+    border-bottom: 1px solid #e3e8ef;
+    white-space: nowrap;
+}
+
+.tabela th {
+    height: 32px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #f0f2f5;
+    color: #555;
+    font-weight: 600;
+}
+
+.tabela th + th,
+.tabela td + td {
+    border-left: 1px solid #e8edf3;
+}
+
+
+.tabela tbody tr:hover {
+    background: #f8fafc;
+}
+
+.tabela th:first-child,
+.tabela td:first-child {
+    width: 96px;
+    text-align: center;
+}
+
+.tabela th:nth-child(2),
+.tabela td:nth-child(2) {
+    width: 44%;
+}
+
+.tabela th:nth-child(3),
+.tabela td:nth-child(3),
+.tabela th:nth-child(4),
+.tabela td:nth-child(4) {
+    width: 110px;
+}
+
+.tabela th:nth-child(5),
+.tabela td:nth-child(5),
+.tabela th:nth-child(6),
+.tabela td:nth-child(6) {
+    width: 130px;
+}
