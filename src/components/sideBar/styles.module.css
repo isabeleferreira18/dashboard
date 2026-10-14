@@ -153,12 +153,13 @@
     align-items: center;
     gap: 8px;
     line-height: 1;
+    font-weight: 500;
+    cursor: pointer;
 }
 
 .logOut {
     background-color: #00326A;
+    border: none;
+    font-size: 16px;
 }
 
-.buttonTheme {
-    cursor: pointer;
-}

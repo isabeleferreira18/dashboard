@@ -44,8 +44,8 @@ export function SideBar({ onNavigate, paginaAtual }: SideBarProps) {
                     <span>Vendas</span>
                 </button>
                 {auth.user?.role === "DEVELOPER" && (
-                    <a className={styles.menuItem}  href="#">
-                        <UserRound  className={styles.imgUser}/>
+                    <a className={styles.menuItem} href="#">
+                        <UserRound className={styles.imgUser} />
                         <span>Usuários</span>
                     </a>
                 )}
@@ -55,13 +55,13 @@ export function SideBar({ onNavigate, paginaAtual }: SideBarProps) {
             <div className={styles.footerSidebar}>
                 <button className={styles.buttonTheme} type="button">
                     <LogOut size={18} />
-                    <span>Modo claro</span>
+                    Modo claro
                 </button>
 
-                <a className={styles.logOut} href="#" >
+                <button className={styles.logOut} onClick={auth.logout}>
                     <LogOut size={18} />
-                    <button onClick={auth.logout} >Sair</button>
-                </a>
+                    Sair
+                </button>
             </div>
         </div>
     )
