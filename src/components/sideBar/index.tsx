@@ -1,3 +1,4 @@
+import type { User } from "../../contexts/AuthContext";
 import { useAuthContext } from "../../contexts/useAuthContext";
 import styles from "./styles.module.css"
 import { ChartLine, House, LogOut, UserRound } from 'lucide-react';
@@ -7,19 +8,18 @@ type Pagina = "dashboard" | "vendas" | "usuarios";
 type SideBarProps = {
     onNavigate: (pagina: Pagina) => void;
     paginaAtual: Pagina;
+    user: User;
 };
 
-export function SideBar({ onNavigate, paginaAtual }: SideBarProps) {
+export function SideBar({ onNavigate, paginaAtual, user }: SideBarProps) {
     const auth = useAuthContext();
     return (
         <div className={styles.sideBar}>
-
             <div className={styles.users}>
-
                 <UserRound className={styles.imgUser} />
                 <div className={styles.infoUser}>
-                    <h1> {auth.user.name} </h1>
-                    <p> {auth.user.role} </p>
+                    <h1> {user.name} </h1>
+                    <p> {user.role} </p>
                 </div>
             </div>
 

@@ -20,7 +20,7 @@ export function App() {
   if (auth.user !== null) {
     return (
       <>
-        <SideBar onNavigate={setPagina} paginaAtual={pagina} />
+        <SideBar onNavigate={setPagina} paginaAtual={pagina} user={auth.user} />
         <main className="pageContentWithSidebar">
           {pagina === "dashboard" && <Dashboard />}
           {pagina === "vendas" && <Vendas />}
