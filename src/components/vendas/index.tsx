@@ -27,27 +27,14 @@ type EntePublico = {
     name: string;
 };
 
-const entesPublicos: EntePublico[] = [
-    { id: 4, name: "Câmara Municipal" },
-    { id: 5, name: "Município de São Paulo" },
-    { id: 6, name: "Prefeitura Municipal" },
-];
+type FiltrosVendasResposta = {
+    publicEntities: EntePublico[];
+};
+
 
 export function Vendas() {
-    const [buscaEnte, setBuscaEnte] = useState("");
-    const [publicEntityId, setPublicEntityId] = useState<number | null>(null);
-    const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
     const [vendas, setVendas] = useState<VendasResposta["groups"]>([]);
-
-    const entesFiltrados = entesPublicos.filter((ente) =>
-        ente.name.toLocaleLowerCase("pt-BR").includes(buscaEnte.trim().toLocaleLowerCase("pt-BR"))
-    );
-
-    function limparFiltroEnte() {
-        setBuscaEnte("");
-        setPublicEntityId(null);
-        setMostrarSugestoes(false);
-    }
+    const [entesPublicos, setEntesPublicos] = useState<EntePublico[]>([]);
 
     async function getVendas(startDate?: string, endDate?: string): Promise<VendasResposta> {
         const params = new URLSearchParams();
@@ -77,32 +64,49 @@ export function Vendas() {
     }
 
     useEffect(() => {
-        getVendas()
-            .then((resultado) => {
-                setVendas(resultado.groups);
-            })
-            .catch((error: unknown) => {
-                console.error("Erro ao carregar as Vendas:", error);
-            });
+        async function getFiltros() {
+            const token = localStorage.getItem("accessToken");
+
+            if (!token) {
+                throw new Error("Token de autenticação não encontrado.");
+            }
+
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/sales/filters`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
+                    },
+                }
+            );
+
+            if (!res.ok) {
+                throw new Error(`Falha ao buscar filtros (HTTP ${res.status})`);
+            }
+
+            const dados = (await res.json()) as FiltrosVendasResposta;
+            setEntesPublicos(dados.publicEntities);
+        }
+
+        getFiltros().catch((error: unknown) => {
+            console.error("Erro ao carregar os filtros:", error);
+        });
     }, []);
 
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault(); const [buscaEnte, setBuscaEnte] = useState("");
-    const [publicEntityId, setPublicEntityId] = useState<number | null>(null);
-    const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
-    const [vendas, setVendas] = useState<VendasResposta["groups"]>([]);
-
-    const entesFiltrados = entesPublicos.filter((ente) =>
-        ente.name.toLocaleLowerCase("pt-BR").includes(buscaEnte.trim().toLocaleLowerCase("pt-BR"))
-    );
-
-
+        event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
 
         if (typeof startDate !== "string" || typeof endDate !== "string" || !startDate || !endDate) {
+            return;
+        }
+
+        if (startDate > endDate) {
+            alert("A data inicial deve ser anterior ou igual à data final.");
             return;
         }
 
@@ -121,14 +125,14 @@ export function Vendas() {
                     <label className={styles.periodo}>
                         <span>Período</span>
                         <div className={styles.datasPeriodo}>
-                            <input name="startDate" type="date" aria-label="Data inicial" />
-                            <input name="endDate" type="date" aria-label="Data final" />
+                            <input name="startDate" type="date" aria-label="Data inicial" required />
+                            <input name="endDate" type="date" aria-label="Data final" required />
                         </div>
                     </label>
 
                     <label className={styles.entePublico}>
                         <span>Ente Público</span>
-                        <input type="text"/> 
+                        <input type="text" />
                     </label>
 
                     <label className={styles.bandeira} >
@@ -159,7 +163,6 @@ export function Vendas() {
                             Filtrar
                         </button>
                         <button type="reset"
-                            onClick={limparFiltroEnte}
                             className={styles.buttonLimpar}>
                             Limpar
                         </button>

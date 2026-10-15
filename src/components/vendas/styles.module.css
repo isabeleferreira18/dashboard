@@ -52,7 +52,7 @@
 }
 
 .datasPeriodo input+input {
-    border-left: 1px solid #dce3ec;
+    border-left: 0.5px solid #dce3ec;
 }
 
 .entePublico {

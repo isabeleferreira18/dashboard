@@ -135,6 +135,11 @@ export function Dashboard() {
         if (typeof startDate !== "string" || typeof endDate !== "string" || !startDate || !endDate) {
             return;
         }
+        
+        if (startDate > endDate) {
+            alert("A data inicial deve ser anterior ou igual à data final.");
+            return;
+        }
 
         try {
             const resultado = await getDashboard(startDate, endDate);
@@ -153,9 +158,9 @@ export function Dashboard() {
                 <div className={styles.dashboardFiltro}>
                     <CalendarDays className={styles.calendarIcon} aria-hidden="true" />
                     <form onSubmit={handleSubmit}>
-                        <input name="startDate" aria-label="Data inicial" type="date" />
+                        <input name="startDate" aria-label="Data inicial" type="date" required />
                         <span className={styles.dateSeparator} aria-hidden="true">–</span>
-                        <input name="endDate" aria-label="Data final" type="date" />
+                        <input name="endDate" aria-label="Data final" type="date" required />
                         <button type="submit">Aplicar</button>
                     </form>
                 </div>
@@ -210,7 +215,7 @@ export function Dashboard() {
                 <Card>
                     <h1> Últimas vendas </h1>
                     <div className={styles.contentTable}>
-                    <TabelaVendas vendas={vendas}/>
+                        <TabelaVendas vendas={vendas} />
                     </div>
                 </Card>
             </div>
