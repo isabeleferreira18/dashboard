@@ -29,21 +29,22 @@ type EntePublico = {
 
 type FiltrosVendasResposta = {
     publicEntities: EntePublico[];
-};
-
+    brands: Venda["brand"][];
+    statuses: Venda["status"][];
+}
 
 export function Vendas() {
     const [vendas, setVendas] = useState<VendasResposta["groups"]>([]);
     const [entesPublicos, setEntesPublicos] = useState<EntePublico[]>([]);
     const [buscaEnte, setBuscaEnte] = useState("");
 
-    async function getVendas(startDate?: string, endDate?: string, publicEntityId?: number): Promise<VendasResposta> {
+    async function getVendas(startDate?: string, endDate?: string, publicEntityId?: number, brands?: string, statuses?: string): Promise<VendasResposta> {
         const params = new URLSearchParams();
         if (startDate) params.set("startDate", startDate);
         if (endDate) params.set("endDate", endDate);
-        if (publicEntityId !== undefined) {
-            params.set("publicEntityId", String(publicEntityId));
-        }
+        if (publicEntityId !== undefined) params.set("publicEntityId", String(publicEntityId));
+        if (brands) params.set("brand", brands);
+        if (statuses) params.set("status", statuses);
 
         const query = params.size > 0 ? `?${params.toString()}` : "";
         const token = localStorage.getItem("accessToken");
@@ -118,6 +119,8 @@ export function Vendas() {
         const enteSelecionado = entesPublicos.find(
             (ente) => ente.name === nomeEnte
         );
+        const brand = formData.get("brand");
+        const status = formData.get("status");
 
         if (nomeEnte && !enteSelecionado) {
             alert("Selecione um ente público válido.");
@@ -132,19 +135,38 @@ export function Vendas() {
             alert("A data inicial deve ser anterior ou igual à data final.");
             return;
         }
+        if (
+            typeof startDate !== "string" ||
+            typeof endDate !== "string" ||
+            typeof brand !== "string" ||
+            typeof status !== "string"
+        ) {
+            return;
+        }
 
         try {
-            const resultadoVendas = await getVendas(startDate, endDate, enteSelecionado?.id);
+            const resultadoVendas = await getVendas(startDate, endDate, enteSelecionado?.id, brand, status);
             setVendas(resultadoVendas.groups);
         } catch (error: unknown) {
             console.error("Erro ao buscar dados do dashboard:", error);
+        }
+    }
+
+    async function handleLimparFiltros() {
+        setBuscaEnte("");
+
+        try {
+            const resultado = await getVendas();
+            setVendas(resultado.groups);
+        } catch (error: unknown) {
+            console.error("Erro ao carregar as vendas:", error);
         }
     }
     return (
         <div className={styles.vendasPage}>
             <h1 className={styles.title}>Vendas</h1>
             <div className="vendasFiltro">
-                <form className={styles.vendasFiltros} onSubmit={handleSubmit} onReset={() => setBuscaEnte("")}>
+                <form className={styles.vendasFiltros} onSubmit={handleSubmit} onReset={handleLimparFiltros}>
                     <label className={styles.periodo}>
                         <span>Período</span>
                         <div className={styles.datasPeriodo}>
