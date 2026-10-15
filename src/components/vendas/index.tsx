@@ -49,126 +49,84 @@ export function Vendas() {
         setMostrarSugestoes(false);
     }
 
-        async function getVendas(startDate?: string, endDate?: string): Promise<VendasResposta> {
-            const params = new URLSearchParams();
-            if (startDate) params.set("startDate", startDate);
-            if (endDate) params.set("endDate", endDate);
-    
-            const query = params.size > 0 ? `?${params.toString()}` : "";
-            const token = localStorage.getItem("accessToken");
-    
-            if (!token) {
-                throw new Error("Token de autenticação não encontrado. Faça login novamente.");
-            }
-    
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/sales${query}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json",
-                },
+    async function getVendas(startDate?: string, endDate?: string): Promise<VendasResposta> {
+        const params = new URLSearchParams();
+        if (startDate) params.set("startDate", startDate);
+        if (endDate) params.set("endDate", endDate);
+
+        const query = params.size > 0 ? `?${params.toString()}` : "";
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+            throw new Error("Token de autenticação não encontrado. Faça login novamente.");
+        }
+
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/sales${query}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+            },
+        });
+
+        if (!res.ok) {
+            throw new Error(`Falha ao buscar dados do dashboard (HTTP ${res.status})`);
+        }
+
+        const resultado = (await res.json()) as VendasResposta;
+        return resultado;
+    }
+
+    useEffect(() => {
+        getVendas()
+            .then((resultado) => {
+                setVendas(resultado.groups);
+            })
+            .catch((error: unknown) => {
+                console.error("Erro ao carregar as Vendas:", error);
             });
-    
-            if (!res.ok) {
-                throw new Error(`Falha ao buscar dados do dashboard (HTTP ${res.status})`);
-            }
-    
-            const resultado = (await res.json()) as VendasResposta;
-            return resultado;
+    }, []);
+
+
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        const formData = new FormData(event.currentTarget);
+        const startDate = formData.get("startDate");
+        const endDate = formData.get("endDate");
+
+        if (typeof startDate !== "string" || typeof endDate !== "string" || !startDate || !endDate) {
+            return;
         }
-    
-        useEffect(() => {
-            getVendas()
-                .then((resultado) => {
-                    setVendas(resultado.groups);
-                })
-                .catch((error: unknown) => {
-                    console.error("Erro ao carregar as Vendas:", error);
-                });
-        }, []);
-    
-    
-        async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-            event.preventDefault();
-    
-            const formData = new FormData(event.currentTarget);
-            const startDate = formData.get("startDate");
-            const endDate = formData.get("endDate");
-    
-            if (typeof startDate !== "string" || typeof endDate !== "string" || !startDate || !endDate) {
-                return;
-            }
-    
-            try {
-                const resultadoVendas = await getVendas(startDate, endDate);
-                setVendas(resultadoVendas.groups);
-            } catch (error: unknown) {
-                console.error("Erro ao buscar dados do dashboard:", error);
-            }
+
+        try {
+            const resultadoVendas = await getVendas(startDate, endDate);
+            setVendas(resultadoVendas.groups);
+        } catch (error: unknown) {
+            console.error("Erro ao buscar dados do dashboard:", error);
         }
+    }
     return (
         <div className={styles.vendasPage}>
             <h1 className={styles.title}>Vendas</h1>
             <div className="vendasFiltro">
-                <form className={styles.vendasFiltro} onSubmit={handleSubmit}>
-                    <label>
+                <form className={styles.vendasFiltros} onSubmit={handleSubmit}>
+                    <label className={styles.periodo}>
                         <span>Período</span>
-                        <div>
+                        <div className={styles.datasPeriodo}>
                             <input name="startDate" type="date" aria-label="Data inicial" />
                             <input name="endDate" type="date" aria-label="Data final" />
                         </div>
                     </label>
 
-                    <label>
+                    <label className={styles.entePublico}>
                         <span>Ente Público</span>
-                        <div className={styles.enteAutocomplete}>
-                            <input
-                                type="text"
-                                value={buscaEnte}
-                                placeholder="Digite o nome do ente"
-                                autoComplete="off"
-                                role="combobox"
-                                aria-autocomplete="list"
-                                aria-expanded={mostrarSugestoes && entesFiltrados.length > 0}
-                                aria-controls="sugestoes-entes"
-                                onFocus={() => setMostrarSugestoes(true)}
-                                onChange={(event) => {
-                                    setBuscaEnte(event.target.value);
-                                    setPublicEntityId(null);
-                                    setMostrarSugestoes(true);
-                                }}
-                                onKeyDown={(event) => {
-                                    if (event.key === "Escape") setMostrarSugestoes(false);
-                                }}
-                            />
-                            <input type="hidden" name="publicEntityId" value={publicEntityId ?? ""} />
-                            {mostrarSugestoes && entesFiltrados.length > 0 && (
-                                <ul className={styles.sugestoesEnte} id="sugestoes-entes" role="listbox">
-                                    {entesFiltrados.map((ente) => (
-                                        <li key={ente.id}>
-                                            <button
-                                                type="button"
-                                                role="option"
-                                                aria-selected={publicEntityId === ente.id}
-                                                onMouseDown={(event) => event.preventDefault()}
-                                                onClick={() => {
-                                                    setBuscaEnte(ente.name);
-                                                    setPublicEntityId(ente.id);
-                                                    setMostrarSugestoes(false);
-                                                }}
-                                            >
-                                                {ente.name}
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
+                        <input type="text"/> 
                     </label>
 
-                    <label>
+                    <label className={styles.bandeira} >
                         <span>Bandeira</span>
                         <select name="brand">
-                            <option value="">-</option>
+                            <option value="">Todos</option>
                             <option value="VISA">VISA</option>
                             <option value="MASTERCARD">MASTERCARD</option>
                             <option value="ELO">ELO</option>
@@ -176,22 +134,28 @@ export function Vendas() {
                         </select>
                     </label>
 
-                    <label>
+                    <label className={styles.status}>
                         <span>Status</span>
                         <select name="status">
-                            <option value="">-</option>
+                            <option value="">Todos</option>
                             <option value="APPROVED">Aprovada</option>
                             <option value="CANCELLED">Cancelada</option>
                             <option value="PENDING">Pendente</option>
                             <option value="REFUNDED">Reembolsada</option>
                         </select>
                     </label>
-
-                    <button type="submit">
-                        <Funnel />
-                        Filtrar
-                    </button>
-                    <button type="reset" onClick={limparFiltroEnte}>Limpar</button>
+                    <div className={styles.botoes}>
+                        <button type="submit"
+                            className={styles.buttonFiltrar}>
+                            <Funnel size={14} fill="#fff" />
+                            Filtrar
+                        </button>
+                        <button type="reset"
+                            onClick={limparFiltroEnte}
+                            className={styles.buttonLimpar}>
+                            Limpar
+                        </button>
+                    </div>
                 </form>
             </div>
 
