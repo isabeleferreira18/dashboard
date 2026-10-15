@@ -2,7 +2,7 @@ import { useAuthContext } from "../../contexts/useAuthContext";
 import styles from "./styles.module.css"
 import { ChartLine, House, LogOut, UserRound } from 'lucide-react';
 
-type Pagina = "dashboard" | "vendas";
+type Pagina = "dashboard" | "vendas" | "usuarios";
 
 type SideBarProps = {
     onNavigate: (pagina: Pagina) => void;
@@ -43,11 +43,15 @@ export function SideBar({ onNavigate, paginaAtual }: SideBarProps) {
                     <ChartLine />
                     <span>Vendas</span>
                 </button>
+
                 {auth.user?.role === "DEVELOPER" && (
-                    <a className={styles.menuItem} href="#">
+                    <button className={`${styles.menuItem} ${paginaAtual === "usuarios" ? styles.menuItemAtivo : ""}`}
+                        type="button"
+                        aria-current={paginaAtual === "usuarios" ? "page" : undefined}
+                        onClick={() => onNavigate("usuarios")}>
                         <UserRound className={styles.imgUser} />
                         <span>Usuários</span>
-                    </a>
+                    </button>
                 )}
 
             </div>

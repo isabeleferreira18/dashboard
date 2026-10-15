@@ -5,8 +5,9 @@ import { SideBar } from "./components/sideBar";
 import { Dashboard } from "./components/dashboard";
 import { Vendas } from "./components/vendas";
 import { useAuthContext } from "./contexts/useAuthContext";
+import { Usuarios } from "./components/usuarios";
 
-type Pagina = "dashboard" | "vendas";
+type Pagina = "dashboard" | "vendas" | "usuarios";
 
 export function App() {
   const auth = useAuthContext();
@@ -21,12 +22,14 @@ export function App() {
       <>
         <SideBar onNavigate={setPagina} paginaAtual={pagina} />
         <main className="pageContentWithSidebar">
-          {pagina === "dashboard" ? <Dashboard /> : <Vendas />}
+          {pagina === "dashboard" && <Dashboard />}
+          {pagina === "vendas" && <Vendas />}
+          {pagina === "usuarios" && <Usuarios />}
         </main>
       </>
     );
   }
-   return (
+  return (
     <main className="pageContent" >
       <Login />
     </main>)
