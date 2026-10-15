@@ -2,45 +2,44 @@
     min-height: calc(100vh - 32px);
     display: flex;
     flex-direction: column;
-    margin: 16px 32px;
+    margin: 16px 16px;
 }
 
 .title {
     margin: 0;
     color: #1C3C63;
     font-size: 32px;
-    padding: 24px;
+    padding: 16px;
 }
 
-.vendasFiltros{
+.vendasFiltros {
     display: flex;
     align-items: end;
     width: 100%;
     gap: 10px;
-    padding-left: 24px;
+    padding-left: 16px;
     font: inherit;
-    font-size: 13px;
+    font-size: 20px;
 }
 
-.periodo{
+.periodo {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    font: inherit;
-    font-size: 13px;
 }
-.datasPeriodo{
+
+.datasPeriodo {
     display: flex;
     box-sizing: border-box;
-    width: 250px;
-    height: 34px;
+    width: 257px;
+    height: 40px;
     overflow: hidden;
     border: 1px solid #dce3ec;
     border-radius: 6px;
     background: #fff;
 }
 
-.datasPeriodo input{
+.datasPeriodo input {
     box-sizing: border-box;
     width: 50%;
     min-width: 0;
@@ -49,14 +48,14 @@
     background: transparent;
     color: #555;
     font: inherit;
-    font-size: 12px;
+    font-size: 13px;
 }
 
-.datasPeriodo input + input {
+.datasPeriodo input+input {
     border-left: 1px solid #dce3ec;
 }
 
-.entePublico{
+.entePublico {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -66,21 +65,21 @@
 .bandeira select,
 .status select {
     box-sizing: border-box;
-    height: 34px;
+    height: 40px;
     padding: 0 10px;
     border: 1px solid #dce3ec;
     border-radius: 4px;
     background: #fff;
     color: #555;
     font: inherit;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .entePublico input {
     width: 218px;
 }
 
-.bandeira{
+.bandeira {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -90,7 +89,7 @@
     width: 142px;
 }
 
-.status{
+.status {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -100,9 +99,9 @@
     width: 135px;
 }
 
-.vendasFiltros label > span {
+.vendasFiltros label>span {
     color: #555;
-    font-size: 12px;
+    font-size:16px;
     font-weight: 600;
 }
 
@@ -114,19 +113,19 @@
     outline-offset: 1px;
 }
 
-.botoes{    
+.botoes {
     display: flex;
-    gap:10px;
-    height: 34px;
+    gap: 10px;
+    height: 40px;
 }
 
-.buttonFiltrar{
+.buttonFiltrar {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    width: 100px;
-    height: 34px;
+    width: 120px;
+    height: 40px;
     margin-left: 5px;
     border: 0;
     border-radius: 8px;
@@ -138,13 +137,13 @@
     cursor: pointer;
 }
 
-.buttonLimpar{
+.buttonLimpar {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    width: 88px;
-    height: 34px;
+    width: 120px;
+    height: 40px;
     margin-left: 5px;
     border: 0;
     border-radius: 8px;

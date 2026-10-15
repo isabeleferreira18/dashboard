@@ -88,7 +88,15 @@ export function Vendas() {
 
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
+        event.preventDefault(); const [buscaEnte, setBuscaEnte] = useState("");
+    const [publicEntityId, setPublicEntityId] = useState<number | null>(null);
+    const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+    const [vendas, setVendas] = useState<VendasResposta["groups"]>([]);
+
+    const entesFiltrados = entesPublicos.filter((ente) =>
+        ente.name.toLocaleLowerCase("pt-BR").includes(buscaEnte.trim().toLocaleLowerCase("pt-BR"))
+    );
+
 
         const formData = new FormData(event.currentTarget);
         const startDate = formData.get("startDate");
