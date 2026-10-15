@@ -35,11 +35,15 @@ type FiltrosVendasResposta = {
 export function Vendas() {
     const [vendas, setVendas] = useState<VendasResposta["groups"]>([]);
     const [entesPublicos, setEntesPublicos] = useState<EntePublico[]>([]);
+    const [buscaEnte, setBuscaEnte] = useState("");
 
-    async function getVendas(startDate?: string, endDate?: string): Promise<VendasResposta> {
+    async function getVendas(startDate?: string, endDate?: string, publicEntityId?: number): Promise<VendasResposta> {
         const params = new URLSearchParams();
         if (startDate) params.set("startDate", startDate);
         if (endDate) params.set("endDate", endDate);
+        if (publicEntityId !== undefined) {
+            params.set("publicEntityId", String(publicEntityId));
+        }
 
         const query = params.size > 0 ? `?${params.toString()}` : "";
         const token = localStorage.getItem("accessToken");
@@ -62,6 +66,16 @@ export function Vendas() {
         const resultado = (await res.json()) as VendasResposta;
         return resultado;
     }
+
+    useEffect(() => {
+        getVendas()
+            .then((resultado) => {
+                setVendas(resultado.groups);
+            })
+            .catch((error: unknown) => {
+                console.error("Erro ao carregar as Vendas:", error);
+            });
+    }, []);
 
     useEffect(() => {
         async function getFiltros() {
@@ -100,18 +114,27 @@ export function Vendas() {
         const formData = new FormData(event.currentTarget);
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
+        const nomeEnte = buscaEnte.trim();
+        const enteSelecionado = entesPublicos.find(
+            (ente) => ente.name === nomeEnte
+        );
 
-        if (typeof startDate !== "string" || typeof endDate !== "string" || !startDate || !endDate) {
+        if (nomeEnte && !enteSelecionado) {
+            alert("Selecione um ente público válido.");
             return;
         }
 
-        if (startDate > endDate) {
+        if (typeof startDate !== "string" || typeof endDate !== "string") {
+            return;
+        }
+
+        if (startDate && endDate && startDate > endDate) {
             alert("A data inicial deve ser anterior ou igual à data final.");
             return;
         }
 
         try {
-            const resultadoVendas = await getVendas(startDate, endDate);
+            const resultadoVendas = await getVendas(startDate, endDate, enteSelecionado?.id);
             setVendas(resultadoVendas.groups);
         } catch (error: unknown) {
             console.error("Erro ao buscar dados do dashboard:", error);
@@ -121,18 +144,26 @@ export function Vendas() {
         <div className={styles.vendasPage}>
             <h1 className={styles.title}>Vendas</h1>
             <div className="vendasFiltro">
-                <form className={styles.vendasFiltros} onSubmit={handleSubmit}>
+                <form className={styles.vendasFiltros} onSubmit={handleSubmit} onReset={() => setBuscaEnte("")}>
                     <label className={styles.periodo}>
                         <span>Período</span>
                         <div className={styles.datasPeriodo}>
-                            <input name="startDate" type="date" aria-label="Data inicial" required />
-                            <input name="endDate" type="date" aria-label="Data final" required />
+                            <input name="startDate" type="date" aria-label="Data inicial" />
+                            <input name="endDate" type="date" aria-label="Data final" />
                         </div>
                     </label>
 
                     <label className={styles.entePublico}>
                         <span>Ente Público</span>
-                        <input type="text" />
+                        <input type="text"
+                            value={buscaEnte}
+                            onChange={(event) => setBuscaEnte(event.target.value)}
+                            list="entes-publicos" />
+                        <datalist id="entes-publicos">
+                            {entesPublicos.map((ente) => (
+                                <option key={ente.id} value={ente.name} />
+                            ))}
+                        </datalist>
                     </label>
 
                     <label className={styles.bandeira} >
