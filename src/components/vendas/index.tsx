@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Funnel } from "lucide-react";
+import { ChevronDown, Funnel } from "lucide-react";
 import styles from "./styles.module.css";
 import { Tabela } from "../tabelas";
 
@@ -15,13 +15,34 @@ type Venda = {
     createdAt: string;
 }
 
+const statusVendas: Record<string, string> = {
+    APPROVED: "Aprovada",
+    CANCELLED: "Cancelada",
+    PENDING: "Pendente",
+    REFUNDED: "Reembolsada",
+};
+
+const classesStatus: Record<string, string> = {
+    APPROVED: styles.statusAprovada,
+    CANCELLED: styles.statusCancelada,
+    PENDING: styles.statusPendente,
+    REFUNDED: styles.statusReembolsada,
+};
+
 const colunasVendas = [
-    { titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
-    { titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}` },
-    { titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
-    { titulo: "Status", renderizar: (venda: Venda) => venda.status },
-    { titulo: "Valor", renderizar: (venda: Venda) => venda.amount },
-    { titulo: "Data", renderizar: (venda: Venda) => venda.createdAt },
+    {titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
+    {titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}` },
+    {titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
+    {
+        titulo: "Status",
+        renderizar: (venda: Venda) => (
+            <span className={`${styles.statusBadge} ${classesStatus[venda.status] ?? styles.statusDesconhecido}`}>
+                {statusVendas[venda.status] ?? venda.status}
+            </span>
+        ),
+    },
+    {titulo: "Valor", renderizar: (venda: Venda) => new Intl.NumberFormat("pt-BR", {style: "currency", currency: "BRL",}).format(venda.amount)},
+    {titulo: "Data", renderizar: (venda: Venda) => new Date(venda.createdAt).toLocaleString("pt-BR")},
 ];
 
 type VendasResposta = {
@@ -46,7 +67,7 @@ export function Vendas() {
     const [vendas, setVendas] = useState<VendasResposta["groups"]>([]);
     const [entesPublicos, setEntesPublicos] = useState<EntePublico[]>([]);
     const [buscaEnte, setBuscaEnte] = useState("");
-
+    const [datasAbertas, setDatasAbertas] = useState<string[]>([]);
 
     async function getVendas(startDate?: string, endDate?: string, publicEntityId?: number, brands?: string, statuses?: string): Promise<VendasResposta> {
         const params = new URLSearchParams();
@@ -235,6 +256,7 @@ export function Vendas() {
 
             <div className={styles.gruposVendas}>
                 {vendas.map((grupo) => {
+                    const aberta = datasAbertas.includes(grupo.date);
                     const valorTotal = grupo.sales.reduce(
                         (soma, venda) => soma + venda.amount, 0
                     );
@@ -242,19 +264,38 @@ export function Vendas() {
 
                     return (
                         <section className={styles.grupoVendas} key={grupo.date}>
-                            <div className={styles.headerTabela}> 
-                            <h2 className={styles.dataGrupo}>
-                                {new Date(`${grupo.date}T00:00:00`).toLocaleDateString("pt-BR")}
-                            </h2>
-
-                            <p>Total do dia: {valorTotal}</p>
-                            <p>{qtdVendas} vendas </p>
-                            </div>
-                            <Tabela
-                                dados={grupo.sales}
-                                colunas={colunasVendas}
-                                obterChave={(venda) => venda.id}
-                            />
+                            <button
+                                type="button"
+                                className={styles.headerTabela}
+                                aria-expanded={aberta}
+                                aria-label={`${aberta ? "Recolher" : "Expandir"} vendas de ${new Date(`${grupo.date}T00:00:00`).toLocaleDateString("pt-BR")}`}
+                                onClick={() => {
+                                    setDatasAbertas((datasAtuais) =>
+                                        datasAtuais.includes(grupo.date)
+                                            ? datasAtuais.filter((data) => data !== grupo.date)
+                                            : [...datasAtuais, grupo.date]
+                                    );
+                                }}
+                            >
+                                <span className={styles.dataGrupo}>
+                                    <ChevronDown
+                                        size={18}
+                                        className={aberta ? styles.setaAberta : styles.setaFechada}
+                                    />
+                                    {new Date(`${grupo.date}T00:00:00`).toLocaleDateString("pt-BR")}
+                                </span>
+                                <span className={styles.resumoGrupo}>
+                                    <span>Total do dia: R$ {valorTotal}</span>
+                                    <span>{qtdVendas} vendas</span>
+                                </span>
+                            </button>
+                            {aberta && (
+                                <Tabela
+                                    dados={grupo.sales}
+                                    colunas={colunasVendas}
+                                    obterChave={(venda) => venda.id}
+                                />
+                            )}
                         </section>
                     );
                 })}

@@ -51,13 +51,34 @@ type VendasResposta = {
     }[];
 };
 
+const statusVendas: Record<string, string> = {
+    APPROVED: "Aprovada",
+    CANCELLED: "Cancelada",
+    PENDING: "Pendente",
+    REFUNDED: "Reembolsada",
+};
+
+const classesStatus: Record<string, string> = {
+    APPROVED: styles.statusAprovada,
+    CANCELLED: styles.statusCancelada,
+    PENDING: styles.statusPendente,
+    REFUNDED: styles.statusReembolsada,
+};
+
 const colunasVendas = [
-    { titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}` },
-    { titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
-    { titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
-    { titulo: "Status", renderizar: (venda: Venda) => venda.status },
-    { titulo: "Valor", renderizar: (venda: Venda) => venda.amount },
-    { titulo: "Data", renderizar: (venda: Venda) => venda.createdAt },
+    {titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}`},
+    {titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name},
+    {titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
+    {
+        titulo: "Status",
+        renderizar: (venda: Venda) => (
+            <span className={`${styles.statusBadge} ${classesStatus[venda.status] ?? styles.statusDesconhecido}`}>
+                {statusVendas[venda.status] ?? venda.status}
+            </span>
+        ),
+    },
+    {titulo: "Valor", renderizar: (venda: Venda) => new Intl.NumberFormat("pt-BR", {style: "currency", currency: "BRL",}).format(venda.amount)},
+    {titulo: "Data", renderizar: (venda: Venda) => new Date(venda.createdAt).toLocaleString("pt-BR")},
 ];
 
 
