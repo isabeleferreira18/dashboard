@@ -10,4 +10,5 @@ body{
 }
 .pageContentWithSidebar {
     margin-left: 240px;
+    padding: 16px;
 }

@@ -6,7 +6,7 @@ import styles from "./styles.module.css";
 import { SalesByDay } from "../graficos/salesByDay";
 import { SalesByStatus } from "../graficos/salesByStatus";
 import { SalesByBrand } from "../graficos/salesByBrand";
-import { TabelaVendas } from "../tabelas";
+import { Tabela } from "../tabelas";
 
 type DashboardData = {
     cards: {
@@ -50,6 +50,16 @@ type VendasResposta = {
         sales: Venda[];
     }[];
 };
+
+const colunasVendas = [
+    { titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}` },
+    { titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
+    { titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
+    { titulo: "Status", renderizar: (venda: Venda) => venda.status },
+    { titulo: "Valor", renderizar: (venda: Venda) => venda.amount },
+    { titulo: "Data", renderizar: (venda: Venda) => venda.createdAt },
+];
+
 
 export function Dashboard() {
     const [dados, setDados] = useState<DashboardData | null>(null);
@@ -135,7 +145,7 @@ export function Dashboard() {
         if (typeof startDate !== "string" || typeof endDate !== "string" || !startDate || !endDate) {
             return;
         }
-        
+
         if (startDate > endDate) {
             alert("A data inicial deve ser anterior ou igual à data final.");
             return;
@@ -215,7 +225,11 @@ export function Dashboard() {
                 <Card>
                     <h1> Últimas vendas </h1>
                     <div className={styles.contentTable}>
-                        <TabelaVendas vendas={vendas} />
+                        <Tabela
+                            dados={(vendas)}
+                            colunas={colunasVendas}
+                            obterChave={(venda) => venda.id}
+                        />
                     </div>
                 </Card>
             </div>

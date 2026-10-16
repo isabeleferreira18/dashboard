@@ -1,44 +1,37 @@
 import styles from "./styles.module.css";
 
-type Venda = {
-    id: number;
-    amount: number;
-    brand: string;
-    publicEntity: {
-        id: number;
-        name: string
-    };
-    status: string;
-    createdAt: string;
+type Coluna<T> = {
+    titulo: string;
+    renderizar: (item: T) => React.ReactNode;
 }
 
-type TabelaVendasProps = {
-    vendas: Venda[];
-};
+type TabelaProps<T> = {
+    dados: T[];
+    colunas: Coluna<T>[];
+    obterChave: (item: T) => string | number;
+}
 
-export function TabelaVendas({ vendas }: TabelaVendasProps) {
+export function Tabela<T>({ dados, colunas, obterChave }: TabelaProps<T>) {
     return (
         <div className={styles.tabelaVendas}>
             <table className={styles.tabela}>
                 <thead>
                     <tr>
-                        <th scope="col"> Código </th>
-                        <th scope="col"> Ente Público </th>
-                        <th scope="col"> Bandeira </th>
-                        <th scope="col"> Status </th>
-                        <th scope="col"> Valor </th>
-                        <th scope="col"> Data </th>
+                        {colunas.map((coluna) => (
+                            <th key={coluna.titulo} scope="col">
+                                {coluna.titulo}
+                            </th>
+                        ))}
                     </tr>
                 </thead>
                 <tbody>
-                    {vendas.map((venda) => (
-                        <tr key={venda.id}>
-                            <td>#{venda.id}</td>
-                            <td>{venda.publicEntity.name}</td>
-                            <td>{venda.brand}</td>
-                            <td>{venda.status}</td>
-                            <td>{venda.amount}</td>
-                            <td>{venda.createdAt}</td>
+                    {dados.map((item) => (
+                        <tr key={obterChave(item)}>
+                            {colunas.map((coluna) => (
+                                <td key={coluna.titulo}>
+                                    {coluna.renderizar(item)}
+                                </td>
+                            ))}
                         </tr>
                     ))}
                 </tbody>

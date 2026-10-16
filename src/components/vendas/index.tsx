@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Funnel } from "lucide-react";
 import styles from "./styles.module.css";
-import { TabelaVendas } from "../tabelas";
+import { Tabela } from "../tabelas";
 
 type Venda = {
     id: number;
@@ -14,6 +14,15 @@ type Venda = {
     status: string;
     createdAt: string;
 }
+
+const colunasVendas = [
+    { titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
+    { titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}` },
+    { titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
+    { titulo: "Status", renderizar: (venda: Venda) => venda.status },
+    { titulo: "Valor", renderizar: (venda: Venda) => venda.amount },
+    { titulo: "Data", renderizar: (venda: Venda) => venda.createdAt },
+];
 
 type VendasResposta = {
     groups: {
@@ -229,10 +238,14 @@ export function Vendas() {
                         <h2 className={styles.dataGrupo}>
                             {new Date(`${grupo.date}T00:00:00`).toLocaleDateString("pt-BR")}
                         </h2>
-                        <TabelaVendas vendas={grupo.sales} />
+                        <Tabela
+                            dados={grupo.sales}
+                            colunas={colunasVendas}
+                            obterChave={(venda) => venda.id}
+                        />
                     </section>
                 ))}
-                {vendas.length === 0 && <p>Nenhuma venda encontrada.</p>}
+                {vendas.length === 0 && <p> Nenhuma venda encontrada. </p>}
             </div>
         </div>
 
