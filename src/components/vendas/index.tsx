@@ -47,6 +47,7 @@ export function Vendas() {
     const [entesPublicos, setEntesPublicos] = useState<EntePublico[]>([]);
     const [buscaEnte, setBuscaEnte] = useState("");
 
+
     async function getVendas(startDate?: string, endDate?: string, publicEntityId?: number, brands?: string, statuses?: string): Promise<VendasResposta> {
         const params = new URLSearchParams();
         if (startDate) params.set("startDate", startDate);
@@ -233,18 +234,30 @@ export function Vendas() {
             </div>
 
             <div className={styles.gruposVendas}>
-                {vendas.map((grupo) => (
-                    <section className={styles.grupoVendas} key={grupo.date}>
-                        <h2 className={styles.dataGrupo}>
-                            {new Date(`${grupo.date}T00:00:00`).toLocaleDateString("pt-BR")}
-                        </h2>
-                        <Tabela
-                            dados={grupo.sales}
-                            colunas={colunasVendas}
-                            obterChave={(venda) => venda.id}
-                        />
-                    </section>
-                ))}
+                {vendas.map((grupo) => {
+                    const valorTotal = grupo.sales.reduce(
+                        (soma, venda) => soma + venda.amount, 0
+                    );
+                    const qtdVendas = grupo.sales.length;
+
+                    return (
+                        <section className={styles.grupoVendas} key={grupo.date}>
+                            <div className={styles.headerTabela}> 
+                            <h2 className={styles.dataGrupo}>
+                                {new Date(`${grupo.date}T00:00:00`).toLocaleDateString("pt-BR")}
+                            </h2>
+
+                            <p>Total do dia: {valorTotal}</p>
+                            <p>{qtdVendas} vendas </p>
+                            </div>
+                            <Tabela
+                                dados={grupo.sales}
+                                colunas={colunasVendas}
+                                obterChave={(venda) => venda.id}
+                            />
+                        </section>
+                    );
+                })}
                 {vendas.length === 0 && <p> Nenhuma venda encontrada. </p>}
             </div>
         </div>
