@@ -9,11 +9,15 @@ type TabelaProps<T> = {
     dados: T[];
     colunas: Coluna<T>[];
     obterChave: (item: T) => string | number;
+    maxHeight?: string | number;
 }
 
-export function Tabela<T>({ dados, colunas, obterChave }: TabelaProps<T>) {
+export function Tabela<T>({ dados, colunas, obterChave, maxHeight }: TabelaProps<T>) {
     return (
-        <div className={styles.tabelaVendas}>
+        <div
+            className={styles.tabelaVendas}
+            style={maxHeight !== undefined ? { maxHeight } : undefined}
+        >
             <table className={styles.tabela}>
                 <thead>
                     <tr>

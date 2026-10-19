@@ -238,6 +238,7 @@ export function Dashboard() {
                             dados={(vendas)}
                             colunas={colunasVendas}
                             obterChave={(venda) => venda.id}
+                            maxHeight={280}
                         />
                     </div>
                 </Card>
