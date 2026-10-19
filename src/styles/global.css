@@ -21,7 +21,7 @@ body{
     font-size: 32px;
 }
 
-.buttonFiltrar,
+.buttonPrimary,
 .buttonLimpar {
   display: inline-flex;
   align-items: center;
@@ -38,7 +38,7 @@ body{
   cursor: pointer;
 }
 
-.buttonFiltrar {
+.buttonPrimary {
   background-color: #1d3d66;
   color: #fff;
 }

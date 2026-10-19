@@ -229,7 +229,7 @@ export function Vendas() {
                     </label>
                     <div className={styles.botoes}>
                         <button type="submit"
-                            className="buttonFiltrar">
+                            className="buttonPrimary">
                             <Funnel size={14} fill="#fff" />
                             Filtrar
                         </button>

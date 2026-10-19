@@ -122,10 +122,10 @@ export function Usuarios() {
         }
     }
     return (
-        <div className={styles.usuariosPage}>
+        <div>
             <div className={styles.headerUsuarios}>
-                <h1 className={styles.title}> Usuários </h1>
-                <button className={styles.buttonUsuario}>
+                <h1 className="pageTitle"> Usuários </h1>
+                <button className="buttonPrimary">
                     + Novo usuário
                 </button>
             </div>
@@ -155,7 +155,7 @@ export function Usuarios() {
                     </select>
                 </label>
                 <button type="submit"
-                    className="buttonFiltrar">
+                    className="buttonPrimary">
                     <Funnel size={14} fill="#fff" />
                     Filtrar
                 </button>
