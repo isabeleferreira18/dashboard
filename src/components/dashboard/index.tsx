@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Banknote, CalendarDays, ChartNoAxesColumn, DollarSign } from "lucide-react";
 import { Card } from "../card";
-import styles from "./styles.module.css";
 import { SalesByDay } from "../graficos/salesByDay";
 import { SalesByStatus } from "../graficos/salesByStatus";
 import { SalesByBrand } from "../graficos/salesByBrand";
 import { Tabela } from "../tabelas";
+import styles from "./styles.module.css";
+import { getStatusClass, getStatusLabel } from "../../utils/statusVendas";
+
 
 type DashboardData = {
     cards: {
@@ -51,20 +53,6 @@ type VendasResposta = {
     }[];
 };
 
-const statusVendas: Record<string, string> = {
-    APPROVED: "Aprovada",
-    CANCELLED: "Cancelada",
-    PENDING: "Pendente",
-    REFUNDED: "Reembolsada",
-};
-
-const classesStatus: Record<string, string> = {
-    APPROVED: styles.statusAprovada,
-    CANCELLED: styles.statusCancelada,
-    PENDING: styles.statusPendente,
-    REFUNDED: styles.statusReembolsada,
-};
-
 const colunasVendas = [
     {titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}`},
     {titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name},
@@ -72,8 +60,8 @@ const colunasVendas = [
     {
         titulo: "Status",
         renderizar: (venda: Venda) => (
-            <span className={`${styles.statusBadge} ${classesStatus[venda.status] ?? styles.statusDesconhecido}`}>
-                {statusVendas[venda.status] ?? venda.status}
+            <span className={getStatusClass(venda.status)}>
+                {getStatusLabel(venda.status)}
             </span>
         ),
     },
@@ -110,7 +98,7 @@ export function Dashboard() {
         }
 
         const resultado = (await res.json()) as DashboardData;
-        // console.log("Resposta da API", resultado);
+
         return resultado;
     }
     async function getVendas(startDate?: string, endDate?: string): Promise<VendasResposta> {
@@ -183,9 +171,9 @@ export function Dashboard() {
     }
 
     return (
-        <div className={styles.dashboardPage}>
+        <div className="dashboardPage">
             <div className={styles.dashboardHeader}>
-                <h1 className={styles.title}>Dashboard</h1>
+                <h1 className="pageTitle">Dashboard</h1>
                 <div className={styles.dashboardFiltro}>
                     <CalendarDays className={styles.calendarIcon} aria-hidden="true" />
                     <form onSubmit={handleSubmit}>

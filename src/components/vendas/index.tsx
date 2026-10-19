@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { ChevronDown, Funnel } from "lucide-react";
 import styles from "./styles.module.css";
 import { Tabela } from "../tabelas";
+import { getStatusClass, getStatusLabel } from "../../utils/statusVendas";
 
 type Venda = {
     id: number;
@@ -15,20 +16,6 @@ type Venda = {
     createdAt: string;
 }
 
-const statusVendas: Record<string, string> = {
-    APPROVED: "Aprovada",
-    CANCELLED: "Cancelada",
-    PENDING: "Pendente",
-    REFUNDED: "Reembolsada",
-};
-
-const classesStatus: Record<string, string> = {
-    APPROVED: styles.statusAprovada,
-    CANCELLED: styles.statusCancelada,
-    PENDING: styles.statusPendente,
-    REFUNDED: styles.statusReembolsada,
-};
-
 const colunasVendas = [
     {titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
     {titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}` },
@@ -36,8 +23,8 @@ const colunasVendas = [
     {
         titulo: "Status",
         renderizar: (venda: Venda) => (
-            <span className={`${styles.statusBadge} ${classesStatus[venda.status] ?? styles.statusDesconhecido}`}>
-                {statusVendas[venda.status] ?? venda.status}
+            <span className={getStatusClass(venda.status)}>
+                {getStatusLabel(venda.status)}
             </span>
         ),
     },

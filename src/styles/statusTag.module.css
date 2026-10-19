@@ -1,0 +1,31 @@
+.status{
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.statusAprovada {
+    background-color: #23c59c;
+    color: #fff;
+}
+
+.statusCancelada {
+    background-color: #e84c68;
+    color: #fff;
+}
+
+.statusPendente {
+    background-color: #ffca16;
+    color: #555;
+}
+
+.statusReembolsada {
+    background-color: #e5e5e5;
+    color: #555;
+}
+
+.statusDesconhecido {
+    background-color: #999;
+    color: #fff;
+}

@@ -8,7 +8,15 @@ body{
   margin-left: 0; 
   padding: 24px;
 }
+
 .pageContentWithSidebar {
-    margin-left: 240px;
-    padding: 16px;
+  margin-left: 240px;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.pageTitle{
+    margin: 0;
+    color: #1C3C63;
+    font-size: 32px;
 }

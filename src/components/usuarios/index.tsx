@@ -118,7 +118,7 @@ export function Usuarios() {
             const resultado = await getUsuarios();
             setUsuarios(resultado.items);
         } catch (error: unknown) {
-            console.error("Erro ao carregar as vendas:", error);
+            console.error("Erro ao carregar os usuários:", error);
         }
     }
     return (
