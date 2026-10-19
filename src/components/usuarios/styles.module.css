@@ -2,13 +2,117 @@
     min-height: calc(100vh - 32px);
     display: flex;
     flex-direction: column;
-    /* margin: 16px 32px; */
+    padding: 12px 28px;
 }
 
 .title {
     margin: 0;
     color: #1C3C63;
     font-size: 32px;
-    padding: 28px;
+    padding: 0 0 16px;
 }
 
+.buttonUsuario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 120px;
+    height: 40px;
+    margin-left: 5px;
+    border: 0;
+    border-radius: 8px;
+    background-color: #1d3d66;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.headerUsuarios {
+    display: flex;
+    justify-content: space-between;
+}
+
+.usuariosFiltros {
+    display: flex;
+    align-items: end;
+    width: 100%;
+    gap: 10px;
+    font: inherit;
+    font-size: 20px;
+}
+
+.usuariosFiltros label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.usuariosFiltros .buscaUsuario {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 341px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #dce3ec;
+    border-radius: 4px;
+    color: #666;
+    background-color: #fff;
+}
+
+.buscaUsuario svg {
+    flex: none;
+}
+
+.usuariosFiltros label > span {
+    color: #555;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.usuariosFiltros input,
+.usuariosFiltros select {
+    box-sizing: border-box;
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid #dce3ec;
+    border-radius: 4px;
+    background: #fff;
+    font: inherit;
+    font-size: 13px;
+}
+
+.usuariosFiltros input {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+}
+
+.usuariosFiltros select {
+    width: 142px;
+}
+
+
+.tabelaUsuario {
+    margin-top: 16px;
+}
+
+.contentTable :global(table) {
+    width: 100%;
+    min-width: 0;
+}
+
+.contentTable :global(th:first-child),
+.contentTable :global(td:first-child) {
+    width: auto;
+    text-align: left;
+}
