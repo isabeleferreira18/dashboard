@@ -11,7 +11,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
-        const role = localStorage.getItem('role');
+        localStorage.getItem('role');
         if (!token) {
             setIsLoading(false);
             return;
