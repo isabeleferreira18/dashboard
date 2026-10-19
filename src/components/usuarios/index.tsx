@@ -54,14 +54,27 @@ type UsuariosResposta = {
     items: Usuario[];
 };
 
+type FiltrosUsuariosResposta = {
+    name: Usuario["name"];
+    role: Usuario["role"];
+    active: Usuario["active"]
+}
+
 export function Usuarios() {
     const [usuarios, setUsuarios] = useState<UsuariosResposta["items"]>([]);
+    // const [nomes, setNome] = useState<Usuario["name"]>([]);
+    // const [buscaNome, setBuscaNome] = useState("");
 
     async function getUsuarios(): Promise<UsuariosResposta> {
         const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("role");
 
         if (!token) {
             throw new Error("Token de autenticação não encontrado. Faça login novamente.");
+        }
+
+        if(role !== "DEVELOPER"){
+            throw new Error("Você não tem autorização para listar usuários.");
         }
 
         const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {

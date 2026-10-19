@@ -52,7 +52,7 @@ export function SideBar({ onNavigate, paginaAtual, user }: SideBarProps) {
                         <UserRound className={styles.imgUser} />
                         <span>Usuários</span>
                     </button>
-                )}
+                )}  
 
             </div>
 

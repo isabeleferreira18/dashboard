@@ -11,6 +11,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
+        const role = localStorage.getItem('role');
         if (!token) {
             setIsLoading(false);
             return;
@@ -75,6 +76,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
             const dados = await res.json();
             localStorage.setItem("accessToken", dados.accessToken);
+            localStorage.setItem("role", dados.user.role);
             setUser({ name: dados.user.name, role: dados.user.role });
         } catch (error: unknown) {
             alert("Falha de conexão no login:" + error);
