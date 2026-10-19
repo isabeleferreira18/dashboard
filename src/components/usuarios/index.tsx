@@ -12,18 +12,47 @@ type Usuario = {
     role: string;
     active: boolean,
 }
+
+const statusUsuarios: Record<string, string> = {
+    true: "Ativo",
+    false: "Inativo"
+};
+
+const classesStatus: Record<string, string> = {
+    true: styles.statusAtivo,
+    false: styles.statusInativo
+}
+
+const perfilUsuario: Record<string, string> = {
+   DIRECTOR: "Diretor",
+   DEVELOPER: "Desenvolvedor"
+}
+
 const colunasUsuarios = [
     { titulo: "Nome", renderizar: (usuario: Usuario) => usuario.name },
     { titulo: "E-mail", renderizar: (usuario: Usuario) => usuario.email },
     { titulo: "CPF", renderizar: (usuario: Usuario) => usuario.cpf },
-    { titulo: "Status", renderizar: (usuario: Usuario) => usuario.active },
-    { titulo: "Perfil", renderizar: (usuario: Usuario) => usuario.role },
+    {
+        titulo: "Status", renderizar: (usuario: Usuario) => {
+            const status = String(usuario.active);
+            return (
+                <span className={`${styles.status} ${classesStatus[status] ?? styles.statusDesconhecido}`}>
+                    {statusUsuarios[status] ?? status}
+                </span>
+            )
+        },
+    },
+    { titulo: "Perfil", 
+        renderizar: (usuario: Usuario) => (
+            <span>
+                {perfilUsuario[usuario.role]}
+            </span>
+        ) },
 ];
 
 type UsuariosResposta = {
     items: Usuario[];
 };
-
 
 export function Usuarios() {
     const [usuarios, setUsuarios] = useState<UsuariosResposta["items"]>([]);

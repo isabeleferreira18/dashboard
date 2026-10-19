@@ -70,7 +70,7 @@
     flex: none;
 }
 
-.usuariosFiltros label > span {
+.usuariosFiltros label>span {
     color: #555;
     font-size: 16px;
     font-weight: 600;
@@ -115,4 +115,26 @@
 .contentTable :global(td:first-child) {
     width: auto;
     text-align: left;
+}
+
+.status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.statusAtivo {
+    background-color: #23c59c;
+    color: #fff;
+}
+
+.statusInativo {
+    background-color: #e84c68;
+    color: #fff;
+}
+
+.statusDesconhecido {
+    background-color: #999;
+    color: #fff;
 }
