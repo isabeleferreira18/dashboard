@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Card } from "../card";
 import { Tabela } from "../tabelas";
 import styles from "./styles.module.css";
@@ -24,8 +24,8 @@ const classesStatus: Record<string, string> = {
 }
 
 const perfilUsuario: Record<string, string> = {
-   DIRECTOR: "Diretor",
-   DEVELOPER: "Desenvolvedor"
+    DIRECTOR: "Diretor",
+    DEVELOPER: "Desenvolvedor"
 }
 
 const colunasUsuarios = [
@@ -42,30 +42,29 @@ const colunasUsuarios = [
             )
         },
     },
-    { titulo: "Perfil", 
+    {
+        titulo: "Perfil",
         renderizar: (usuario: Usuario) => (
             <span>
                 {perfilUsuario[usuario.role]}
             </span>
-        ) },
+        )
+    },
 ];
 
 type UsuariosResposta = {
     items: Usuario[];
 };
 
-type FiltrosUsuariosResposta = {
-    name: Usuario["name"];
-    role: Usuario["role"];
-    active: Usuario["active"]
-}
-
 export function Usuarios() {
     const [usuarios, setUsuarios] = useState<UsuariosResposta["items"]>([]);
-    // const [nomes, setNome] = useState<Usuario["name"]>([]);
-    // const [buscaNome, setBuscaNome] = useState("");
+    const [buscaNome, setBuscaNome] = useState("");
 
-    async function getUsuarios(): Promise<UsuariosResposta> {
+    async function getUsuarios(name?: string): Promise<UsuariosResposta> {
+        const params = new URLSearchParams();
+        if (name) params.set("search", name);
+        const query = params.size > 0 ? `?${params.toString()}` : "";
+
         const token = localStorage.getItem("accessToken");
         const role = localStorage.getItem("role");
 
@@ -73,11 +72,11 @@ export function Usuarios() {
             throw new Error("Token de autenticação não encontrado. Faça login novamente.");
         }
 
-        if(role !== "DEVELOPER"){
+        if (role !== "DEVELOPER") {
             throw new Error("Você não tem autorização para listar usuários.");
         }
 
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users${query}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: "application/json",
@@ -102,6 +101,13 @@ export function Usuarios() {
             });
     }, []);
 
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        const resultado = await getUsuarios(buscaNome.trim());
+        setUsuarios(resultado.items);
+    }
+
     return (
         <div className={styles.usuariosPage}>
             <div className={styles.headerUsuarios}>
@@ -110,10 +116,13 @@ export function Usuarios() {
                     + Novo usuário
                 </button>
             </div>
-            <form className={styles.usuariosFiltros}>
+            <form className={styles.usuariosFiltros} onSubmit={handleSubmit}>
                 <label className={styles.buscaUsuario}>
                     <Search size={16} aria-hidden="true" />
-                    <input type="text" placeholder="Digite o nome do usuário" />
+                    <input type="text" placeholder="Digite o nome do usuário"
+                        value={buscaNome}
+                        onChange={(event) => setBuscaNome(event.target.value)}
+                    />
                 </label>
                 <label >
                     <span>Perfil</span>
