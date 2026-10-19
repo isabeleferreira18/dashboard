@@ -138,3 +138,39 @@
     background-color: #999;
     color: #fff;
 }
+
+.buttonFiltrar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 120px;
+    height: 40px;
+    margin-left: 5px;
+    border: 0;
+    border-radius: 8px;
+    background-color: #1d3d66;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.buttonLimpar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 120px;
+    height: 40px;
+    margin-left: 5px;
+    border: 0;
+    border-radius: 8px;
+    background-color: #EDEFF4;
+    color: #1d3d66;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}

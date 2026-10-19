@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Card } from "../card";
 import { Tabela } from "../tabelas";
 import styles from "./styles.module.css";
-import { Search } from "lucide-react";
+import { Funnel, Search } from "lucide-react";
 
 type Usuario = {
     id: number;
@@ -60,19 +60,21 @@ export function Usuarios() {
     const [usuarios, setUsuarios] = useState<UsuariosResposta["items"]>([]);
     const [buscaNome, setBuscaNome] = useState("");
 
-    async function getUsuarios(name?: string): Promise<UsuariosResposta> {
+    async function getUsuarios(name?: string, role?: string, status?: string): Promise<UsuariosResposta> {
         const params = new URLSearchParams();
         if (name) params.set("search", name);
+        if (role) params.set("role", role);
+        if (status) params.set("active", status);
         const query = params.size > 0 ? `?${params.toString()}` : "";
 
         const token = localStorage.getItem("accessToken");
-        const role = localStorage.getItem("role");
+        const roleLogin = localStorage.getItem("role");
 
         if (!token) {
             throw new Error("Token de autenticação não encontrado. Faça login novamente.");
         }
 
-        if (role !== "DEVELOPER") {
+        if (roleLogin !== "DEVELOPER") {
             throw new Error("Você não tem autorização para listar usuários.");
         }
 
@@ -103,11 +105,22 @@ export function Usuarios() {
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
-        const resultado = await getUsuarios(buscaNome.trim());
+        const formData = new FormData(event.currentTarget);
+        const role = formData.get("role")?.toString() ?? "";
+        const status = formData.get("active")?.toString() ?? "";
+        const resultado = await getUsuarios(buscaNome.trim(), role, status);
         setUsuarios(resultado.items);
     }
 
+    async function handleLimparFiltros() {
+        setBuscaNome("");
+        try {
+            const resultado = await getUsuarios();
+            setUsuarios(resultado.items);
+        } catch (error: unknown) {
+            console.error("Erro ao carregar as vendas:", error);
+        }
+    }
     return (
         <div className={styles.usuariosPage}>
             <div className={styles.headerUsuarios}>
@@ -116,7 +129,7 @@ export function Usuarios() {
                     + Novo usuário
                 </button>
             </div>
-            <form className={styles.usuariosFiltros} onSubmit={handleSubmit}>
+            <form className={styles.usuariosFiltros} onSubmit={handleSubmit} onReset={handleLimparFiltros}>
                 <label className={styles.buscaUsuario}>
                     <Search size={16} aria-hidden="true" />
                     <input type="text" placeholder="Digite o nome do usuário"
@@ -126,7 +139,7 @@ export function Usuarios() {
                 </label>
                 <label >
                     <span>Perfil</span>
-                    <select name="brand">
+                    <select name="role">
                         <option value="">Todos</option>
                         <option value="DEVELOPER">Desenvolvedor</option>
                         <option value="DIRECTOR">Diretor</option>
@@ -135,12 +148,21 @@ export function Usuarios() {
 
                 <label >
                     <span>Status</span>
-                    <select name="brand">
+                    <select name="active">
                         <option value="">Todos</option>
                         <option value="true">Ativo</option>
                         <option value="false">Inativo</option>
                     </select>
                 </label>
+                <button type="submit"
+                    className={styles.buttonFiltrar}>
+                    <Funnel size={14} fill="#fff" />
+                    Filtrar
+                </button>
+                <button type="reset"
+                    className={styles.buttonLimpar}>
+                    Limpar
+                </button>
             </form>
 
             <div className={styles.tabelaUsuario}>

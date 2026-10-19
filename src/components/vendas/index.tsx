@@ -36,7 +36,7 @@ const colunasVendas = [
     {
         titulo: "Status",
         renderizar: (venda: Venda) => (
-            <span className={`${styles.status} ${classesStatus[venda.status] ?? styles.statusDesconhecido}`}>
+            <span className={`${styles.statusBadge} ${classesStatus[venda.status] ?? styles.statusDesconhecido}`}>
                 {statusVendas[venda.status] ?? venda.status}
             </span>
         ),
