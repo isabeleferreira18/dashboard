@@ -155,12 +155,12 @@ export function Usuarios() {
                     </select>
                 </label>
                 <button type="submit"
-                    className={styles.buttonFiltrar}>
+                    className="buttonFiltrar">
                     <Funnel size={14} fill="#fff" />
                     Filtrar
                 </button>
                 <button type="reset"
-                    className={styles.buttonLimpar}>
+                    className="buttonLimpar">
                     Limpar
                 </button>
             </form>

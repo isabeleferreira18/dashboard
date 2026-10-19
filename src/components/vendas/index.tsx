@@ -181,8 +181,8 @@ export function Vendas() {
         }
     }
     return (
-        <div className={styles.vendasPage}>
-            <h1 className={styles.title}>Vendas</h1>
+        <div>
+            <h1 className="pageTitle">Vendas</h1>
             <div className="vendasFiltro">
                 <form className={styles.vendasFiltros} onSubmit={handleSubmit} onReset={handleLimparFiltros}>
                     <label className={styles.periodo}>
@@ -229,12 +229,12 @@ export function Vendas() {
                     </label>
                     <div className={styles.botoes}>
                         <button type="submit"
-                            className={styles.buttonFiltrar}>
+                            className="buttonFiltrar">
                             <Funnel size={14} fill="#fff" />
                             Filtrar
                         </button>
                         <button type="reset"
-                            className={styles.buttonLimpar}>
+                            className="buttonLimpar">
                             Limpar
                         </button>
                     </div>

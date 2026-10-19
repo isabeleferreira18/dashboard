@@ -171,7 +171,7 @@ export function Dashboard() {
     }
 
     return (
-        <div className="dashboardPage">
+        <div>
             <div className={styles.dashboardHeader}>
                 <h1 className="pageTitle">Dashboard</h1>
                 <div className={styles.dashboardFiltro}>
