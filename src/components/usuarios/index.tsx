@@ -78,10 +78,11 @@ export function Usuarios() {
                     <button
                         type="button"
                         className={styles.botaoExcluir}
-                        aria-label={`Excluir usuário ${usuario.name}`}
+                        onClick={() => handleDesativarUsuario(usuario)}
+                        aria-label={`Desativar usuário ${usuario.name}`}
                     >
                         <Trash2 size={14} aria-hidden="true" />
-                        Excluir
+                        Desativar
                     </button>
                 </div>
             ),
@@ -136,8 +137,13 @@ export function Usuarios() {
         const formData = new FormData(event.currentTarget);
         const role = formData.get("role")?.toString() ?? "";
         const status = formData.get("active")?.toString() ?? "";
-        const resultado = await getUsuarios(buscaNome.trim(), role, status);
-        setUsuarios(resultado.items);
+
+        try {
+            const resultado = await getUsuarios(buscaNome.trim(), role, status);
+            setUsuarios(resultado.items);
+        } catch (error: unknown) {
+            console.error("Erro ao carregar os usuários:", error);
+        }
     }
 
     async function handleLimparFiltros() {
@@ -150,18 +156,290 @@ export function Usuarios() {
         }
     }
 
-    async function handleCriarUsuario(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        if (usuarioSelecionado) {
-            alert("O formulário de edição está preenchido. A atualização pela API ainda não foi conectada.");
+    async function criarUsuarios(name: string, cpf: string, email: string, password: string, role: string) {
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+            throw new Error("Token de autenticação não encontrado.");
+        }
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name,
+                cpf,
+                email,
+                password,
+                role,
+            })
+        })
+        if (!res.ok) {
+            let mensagemErro = `Falha ao criar usuário (HTTP ${res.status})`;
+
+            try {
+                const dadosErro = await res.json() as { error?: { message?: string } };
+                if (dadosErro.error?.message) {
+                    mensagemErro = dadosErro.error.message;
+                }
+            } catch {
+            }
+
+            throw new Error(mensagemErro);
+        }
+
+    }
+
+    async function editarUsuario(id: number, name?: string, cpf?: string, email?: string, role?: string) {
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+            throw new Error("Token de autenticação não encontrado.");
+        }
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}`, {
+            method: "PATCH",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name,
+                cpf,
+                email,
+                role,
+            })
+
+        })
+        if (!res.ok) {
+            let mensagemErro = `Falha ao alterar o usuário. (HTTP ${res.status})`;
+
+            try {
+                const dadosErro = await res.json() as { error?: { message?: string } };
+                if (dadosErro.error?.message) {
+                    mensagemErro = dadosErro.error.message;
+                }
+            } catch {
+            }
+            throw new Error(mensagemErro);
+        }
+    }
+
+    async function alterarSenhaUsuario(id: number, password: string) {
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+            throw new Error("Token de autenticação não encontrado.");
+        }
+
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}/password`, {
+            method: "PATCH",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ password }),
+        });
+
+        if (!res.ok) {
+            let mensagemErro = `Falha ao alterar a senha (HTTP ${res.status})`;
+
+            try {
+                const dadosErro = await res.json() as { error?: { message?: string } };
+                if (dadosErro.error?.message) {
+                    mensagemErro = dadosErro.error.message;
+                }
+            } catch {
+            }
+
+            throw new Error(mensagemErro);
+        }
+    }
+
+
+    async function desativarUsuario(id: number) {
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+            throw new Error("Token de autenticação não encontrado.");
+        }
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+
+        if (!res.ok) {
+            let mensagemErro = `Falha ao desativar usuário (HTTP ${res.status})`;
+
+            try {
+                const dadosErro = await res.json() as { error?: { message?: string } };
+                if (dadosErro.error?.message) {
+                    mensagemErro = dadosErro.error.message;
+                }
+            } catch {
+            }
+
+            throw new Error(mensagemErro);
+        }
+    }
+
+    async function handleDesativarUsuario(usuario: Usuario) {
+        if (!window.confirm(`Deseja realmente desativar o usuário ${usuario.name}?`)) {
             return;
         }
+
+        try {
+            await desativarUsuario(usuario.id);
+            setUsuarios((atuais) => atuais.map((item) =>
+                item.id === usuario.id ? { ...item, active: false } : item
+            ));
+            alert("Usuário desativado com sucesso.");
+        } catch (error: unknown) {
+            console.error("Erro ao desativar usuário:", error);
+            alert(error instanceof Error ? error.message : "Não foi possível desativar o usuário.");
+        }
+    }
+
+    async function handleAlterarUsuario(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!usuarioSelecionado) {
+            alert("Selecione um usuário para editar.");
+            return;
+        }
+
         const formData = new FormData(event.currentTarget);
         const name = formData.get("name");
         const cpf = formData.get("cpf");
         const email = formData.get("email");
         const password = formData.get("password");
         const role = formData.get("role")?.toString() ?? "";
+
+        if (
+            typeof name !== "string" ||
+            typeof cpf !== "string" ||
+            typeof email !== "string" ||
+            typeof password !== "string"
+        ) {
+            alert("Não foi possível ler os campos. Confira os dados e tente novamente.");
+            return;
+        }
+
+        if (!name.trim() || !cpf.trim() || !email.trim()) {
+            alert("Preencha nome, CPF e e-mail.");
+            return;
+        }
+
+        if (password && password.length < 6) {
+            alert("A nova senha deve ter pelo menos 6 caracteres.");
+            return;
+        }
+
+        if (role !== "DIRECTOR" && role !== "DEVELOPER") {
+            alert("Selecione um perfil válido.");
+            return;
+        }
+
+        const usuarioAtualizado: Usuario = {
+            ...usuarioSelecionado,
+            name,
+            cpf,
+            email,
+            role,
+        };
+        let dadosAtualizados = false;
+
+        try {
+            await editarUsuario(usuarioSelecionado.id, name, cpf, email, role);
+            dadosAtualizados = true;
+
+            if (password) {
+                await alterarSenhaUsuario(usuarioSelecionado.id, password);
+            }
+
+            setUsuarios((atuais) => atuais.map((usuario) =>
+                usuario.id === usuarioSelecionado.id ? usuarioAtualizado : usuario
+            ));
+            setMostrarForms(false);
+            setUsuarioSelecionado(null);
+            setMostrarSenha(false);
+            alert("Usuário atualizado com sucesso.");
+        } catch (error: unknown) {
+            console.error("Erro ao atualizar usuário:", error);
+
+            if (dadosAtualizados) {
+                setUsuarios((atuais) => atuais.map((usuario) =>
+                    usuario.id === usuarioSelecionado.id ? usuarioAtualizado : usuario
+                ));
+            }
+
+            const detalheErro = error instanceof Error ? error.message : "Ocorreu um erro inesperado.";
+            const mensagem = dadosAtualizados && password
+                ? `Os dados do usuário foram atualizados, mas a senha não: ${detalheErro}`
+                : detalheErro;
+            alert(mensagem);
+        }
+    }
+
+    async function handleCriarUsuario(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (usuarioSelecionado) {
+            alert("O formulário de edição está preenchido. A atualização pela API ainda não foi conectada.");
+            return;
+        }
+        const formulario = event.currentTarget;
+        const formData = new FormData(formulario);
+        const name = formData.get("name");
+        const cpf = formData.get("cpf");
+        const email = formData.get("email");
+        const password = formData.get("password");
+        const role = formData.get("role")?.toString() ?? "";
+
+        if (typeof name !== "string" ||
+            typeof cpf !== "string" ||
+            typeof email !== "string" ||
+            typeof password !== "string"
+        ) {
+            alert("Não foi possível ler os campos. Confira os dados e tente novamente.");
+            return;
+        }
+
+        if (!name.trim() || !cpf.trim() || !email.trim() || !password) {
+            alert("Preencha nome, CPF, e-mail e senha.");
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("A senha deve ter pelo menos 6 caracteres.");
+            return;
+        }
+
+        if (role !== "DIRECTOR" && role !== "DEVELOPER") {
+            alert("Selecione um perfil válido.");
+            return;
+        }
+
+        try {
+            await criarUsuarios(name, cpf, email, password, role);
+        } catch (error: unknown) {
+            console.error("Erro ao criar usuário:", error);
+            alert(error instanceof Error ? error.message : "Não foi possível criar o usuário.");
+            return;
+        }
+
+        formulario.reset();
+        setMostrarSenha(false);
+        alert("Usuário criado com sucesso.");
+
+        try {
+            const resultado = await getUsuarios();
+            setUsuarios(resultado.items);
+        } catch (error: unknown) {
+            console.error("Usuário criado, mas não foi possível atualizar a lista:", error);
+            alert("Usuário criado, mas não foi possível atualizar a lista. Atualize a página para vê-lo.");
+        }
     }
 
     return (
@@ -224,17 +502,22 @@ export function Usuarios() {
 
                 {mostrarForms && (
                     <Card className={styles.cardFormulario}>
-                        <form className={styles.formCriarUsuario} onSubmit={handleCriarUsuario} key={usuarioSelecionado?.id ?? "novo"}>
+                        <form
+                            className={styles.formCriarUsuario}
+                            onSubmit={usuarioSelecionado ? handleAlterarUsuario : handleCriarUsuario}
+                            key={usuarioSelecionado?.id ?? "novo"}
+                        >
                             <h2>{usuarioSelecionado ? `Editar usuário: ${usuarioSelecionado.name}` : "Criar novo usuário"}</h2>
                             <div className={styles.camposFormulario}>
                                 <label className={`${styles.campoFormulario} ${styles.campoNome}`} htmlFor="name">
                                     <span>Nome</span>
-                                    <input id="name" name="name" type="text" defaultValue={usuarioSelecionado?.name ?? ""} placeholder="Digite o nome do usuário" />
+                                    <input id="name" name="name" type="text" required defaultValue={usuarioSelecionado?.name ?? ""} placeholder="Digite o nome do usuário" />
                                 </label>
 
                                 <label className={`${styles.campoFormulario} ${styles.campoCpf}`} htmlFor="cpf">
                                     <span>CPF</span>
                                     <input id="cpf" name="cpf" type="text"
+                                        required
                                         inputMode="numeric"
                                         maxLength={14}
                                         pattern="[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}"
@@ -245,7 +528,7 @@ export function Usuarios() {
 
                                 <label className={`${styles.campoFormulario} ${styles.campoEmail}`} htmlFor="email">
                                     <span>E-mail</span>
-                                    <input id="email" name="email" type="text" defaultValue={usuarioSelecionado?.email ?? ""} placeholder="Digite o e-mail do usuário" />
+                                    <input id="email" name="email" type="email" required defaultValue={usuarioSelecionado?.email ?? ""} placeholder="Digite o e-mail do usuário" />
                                 </label>
 
                                 <label className={`${styles.campoFormulario} ${styles.campoPassword}`} htmlFor="password">
@@ -253,6 +536,7 @@ export function Usuarios() {
                                     <span className={styles.campoSenha}>
                                         <input id="password" name="password"
                                             type={mostrarSenha ? "text" : "password"} required={!usuarioSelecionado}
+                                            minLength={6}
                                             className={styles.inputForm}
                                             placeholder={usuarioSelecionado ? "Deixe em branco para manter a senha" : "Digite a senha"}
                                         />
@@ -270,7 +554,7 @@ export function Usuarios() {
 
                                 <label className={`${styles.campoFormulario} ${styles.campoRole}`} htmlFor="role">
                                     <span>Perfil</span>
-                                    <select id="role" name="role" defaultValue={usuarioSelecionado?.role ?? ""}>
+                                    <select id="role" name="role" required defaultValue={usuarioSelecionado?.role ?? ""}>
                                         <option value="">Selecione o perfil</option>
                                         <option value="DEVELOPER">Desenvolvedor</option>
                                         <option value="DIRECTOR">Diretor</option>

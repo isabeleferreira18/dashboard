@@ -69,6 +69,12 @@ const colunasVendas = [
     {titulo: "Data", renderizar: (venda: Venda) => new Date(venda.createdAt).toLocaleString("pt-BR")},
 ];
 
+const formatarMoeda = (valor: number) =>
+    new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    }).format(valor);
+
 
 export function Dashboard() {
     const [dados, setDados] = useState<DashboardData | null>(null);
@@ -190,14 +196,14 @@ export function Dashboard() {
                     <span className={`${styles.miniCardIcon} ${styles.grossIcon}`}><DollarSign /></span>
                     <div className={styles.miniCardContent}>
                         <span>Receita Bruta</span>
-                        <strong>{dados?.cards.grossRevenue ?? "—"}</strong>
+                        <strong>{dados ? formatarMoeda(dados.cards.grossRevenue) : "—"}</strong>
                     </div>
                 </Card>
                 <Card className={styles.miniCard}>
                     <span className={`${styles.miniCardIcon} ${styles.netIcon}`}><DollarSign /></span>
                     <div className={styles.miniCardContent}>
                         <span>Receita Líquida</span>
-                        <strong>{dados?.cards.netRevenue ?? "—"}</strong>
+                        <strong>{dados ? formatarMoeda(dados.cards.netRevenue) : "—"}</strong>
                     </div>
                 </Card>
                 <Card className={styles.miniCard}>
@@ -211,7 +217,7 @@ export function Dashboard() {
                     <span className={`${styles.miniCardIcon} ${styles.ticketIcon}`}><Banknote /></span>
                     <div className={styles.miniCardContent}>
                         <span>Ticket Médio</span>
-                        <strong>{dados?.cards.averageTicket ?? "—"}</strong>
+                        <strong>{dados ? formatarMoeda(dados.cards.averageTicket) : "—"}</strong>
                     </div>
                 </Card>
             </div>
