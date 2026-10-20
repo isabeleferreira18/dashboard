@@ -26,7 +26,7 @@ export function Login() {
                 <form onSubmit={handleSubmit} className={styles.formLogin}>
                     <h1 className={styles.title}> BEM VINDO </h1>
                     <p className={styles.title}> Acesse o Backoffice </p>
-                    <label htmlFor="CPF"> CPF </label>
+                    <label htmlFor="cpf"> CPF </label>
                     <input id="cpf" name="cpf" type="text"
                         inputMode="numeric"
                         maxLength={14}
