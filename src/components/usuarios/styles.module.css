@@ -106,3 +106,205 @@
     background-color: #999;
     color: #fff;
 }
+
+.botaoEditar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border: 1px solid #4a90e2;
+    border-radius: 4px;
+    background: #fff;
+    color: #2876ca;
+    font: inherit;
+    cursor: pointer;
+}
+
+.botaoEditar:hover {
+    background: #eef6ff;
+}
+
+.botaoEditar:focus-visible {
+    outline: 2px solid #9bb8dc;
+    outline-offset: 2px;
+}
+
+.acoesTabela {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.botaoExcluir {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border: 1px solid #e84c68;
+    border-radius: 4px;
+    background: #fff;
+    color: #c72f4b;
+    font: inherit;
+    cursor: pointer;
+}
+
+.botaoExcluir:hover {
+    background: #fff1f3;
+}
+
+.botaoExcluir:focus-visible {
+    outline: 2px solid #eaa0ad;
+    outline-offset: 2px;
+}
+
+.cardFormulario {
+    margin-top: 20px;
+    padding: 24px 12px;
+}
+
+.formCriarUsuario {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    margin: 0;
+}
+
+.formCriarUsuario h2 {
+    margin: 0;
+    color: #1C3C63;
+    font-size: 22px;
+}
+
+.camposFormulario {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+        "nome cpf perfil"
+        "email senha acoes";
+    gap: 18px 20px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+}
+
+.campoNome { grid-area: nome; }
+.campoCpf { grid-area: cpf; }
+.campoEmail { grid-area: email; }
+.campoPassword { grid-area: senha; }
+.campoRole { grid-area: perfil; }
+.acoesCriacao { grid-area: acoes; }
+
+.campoFormulario {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #555;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.campoFormulario > input,
+.campoFormulario > select,
+.inputForm {
+    box-sizing: border-box;
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #dce3ec;
+    border-radius: 6px;
+    background: #fff;
+    color: #333;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.campoFormulario > input:focus,
+.campoFormulario > select:focus,
+.inputForm:focus {
+    outline: 2px solid #9bb8dc;
+    outline-offset: 1px;
+}
+
+.campoSenha {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.campoSenha .inputForm {
+    padding-right: 42px;
+}
+
+.botaoOlho {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #1d3d66;
+    cursor: pointer;
+}
+
+.botaoOlho svg {
+    width: 18px;
+    height: 18px;
+}
+
+.acoesFormulario {
+    display: flex;
+    align-self: end;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    min-height: 42px;
+}
+
+.acoesFormulario button {
+    margin-left: 0;
+}
+
+@media (max-width: 600px) {
+    .cardFormulario {
+        padding: 18px 8px;
+    }
+
+    .camposFormulario {
+        grid-template-areas:
+            "nome"
+            "cpf"
+            "email"
+            "senha"
+            "perfil"
+            "acoes";
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .acoesFormulario {
+        flex-direction: column-reverse;
+        align-self: stretch;
+    }
+
+    .acoesFormulario button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+    .camposFormulario {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            "nome cpf"
+            "email senha"
+            "perfil acoes";
+    }
+}

@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Card } from "../card";
 import { Tabela } from "../tabelas";
 import styles from "./styles.module.css";
-import { Funnel, Search } from "lucide-react";
+import { EyeIcon, Funnel, Pencil, Search, Trash2 } from "lucide-react";
 
 type Usuario = {
     id: number;
@@ -28,30 +28,6 @@ const perfilUsuario: Record<string, string> = {
     DEVELOPER: "Desenvolvedor"
 }
 
-const colunasUsuarios = [
-    { titulo: "Nome", renderizar: (usuario: Usuario) => usuario.name },
-    { titulo: "E-mail", renderizar: (usuario: Usuario) => usuario.email },
-    { titulo: "CPF", renderizar: (usuario: Usuario) => usuario.cpf },
-    {
-        titulo: "Status", renderizar: (usuario: Usuario) => {
-            const status = String(usuario.active);
-            return (
-                <span className={`${styles.status} ${classesStatus[status] ?? styles.statusDesconhecido}`}>
-                    {statusUsuarios[status] ?? status}
-                </span>
-            )
-        },
-    },
-    {
-        titulo: "Perfil",
-        renderizar: (usuario: Usuario) => (
-            <span>
-                {perfilUsuario[usuario.role]}
-            </span>
-        )
-    },
-];
-
 type UsuariosResposta = {
     items: Usuario[];
 };
@@ -59,6 +35,58 @@ type UsuariosResposta = {
 export function Usuarios() {
     const [usuarios, setUsuarios] = useState<UsuariosResposta["items"]>([]);
     const [buscaNome, setBuscaNome] = useState("");
+    const [mostrarForms, setMostrarForms] = useState<boolean>(false);
+    const [mostrarSenha, setMostrarSenha] = useState(false);
+    const [usuarioSelecionado, setUsuarioSelecionado] = useState<Usuario | null>(null);
+
+    function handleEditarUsuario(usuario: Usuario) {
+        setUsuarioSelecionado(usuario);
+        setMostrarForms(true);
+    }
+
+    const colunasUsuarios = [
+        { titulo: "Nome", renderizar: (usuario: Usuario) => usuario.name },
+        { titulo: "E-mail", renderizar: (usuario: Usuario) => usuario.email },
+        { titulo: "CPF", renderizar: (usuario: Usuario) => usuario.cpf },
+        {
+            titulo: "Status", renderizar: (usuario: Usuario) => {
+                const status = String(usuario.active);
+                return (
+                    <span className={`${styles.status} ${classesStatus[status] ?? styles.statusDesconhecido}`}>
+                        {statusUsuarios[status] ?? status}
+                    </span>
+                )
+            },
+        },
+        {
+            titulo: "Perfil",
+            renderizar: (usuario: Usuario) => <span>{perfilUsuario[usuario.role]}</span>,
+        },
+        {
+            titulo: "Ações",
+            renderizar: (usuario: Usuario) => (
+                <div className={styles.acoesTabela}>
+                    <button
+                        type="button"
+                        className={styles.botaoEditar}
+                        onClick={() => handleEditarUsuario(usuario)}
+                        aria-label={`Editar usuário ${usuario.name}`}
+                    >
+                        <Pencil size={14} aria-hidden="true" />
+                        Editar
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.botaoExcluir}
+                        aria-label={`Excluir usuário ${usuario.name}`}
+                    >
+                        <Trash2 size={14} aria-hidden="true" />
+                        Excluir
+                    </button>
+                </div>
+            ),
+        },
+    ];
 
     async function getUsuarios(name?: string, role?: string, status?: string): Promise<UsuariosResposta> {
         const params = new URLSearchParams();
@@ -121,11 +149,29 @@ export function Usuarios() {
             console.error("Erro ao carregar os usuários:", error);
         }
     }
+
+    async function handleCriarUsuario(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (usuarioSelecionado) {
+            alert("O formulário de edição está preenchido. A atualização pela API ainda não foi conectada.");
+            return;
+        }
+        const formData = new FormData(event.currentTarget);
+        const name = formData.get("name");
+        const cpf = formData.get("cpf");
+        const email = formData.get("email");
+        const password = formData.get("password");
+        const role = formData.get("role")?.toString() ?? "";
+    }
+
     return (
         <div>
             <div className={styles.headerUsuarios}>
                 <h1 className="pageTitle"> Usuários </h1>
-                <button className="buttonPrimary">
+                <button type="button" className="buttonPrimary" onClick={() => {
+                    setUsuarioSelecionado(null);
+                    setMostrarForms(!mostrarForms);
+                }}>
                     + Novo usuário
                 </button>
             </div>
@@ -175,6 +221,72 @@ export function Usuarios() {
                         />
                     </div>
                 </Card>
+
+                {mostrarForms && (
+                    <Card className={styles.cardFormulario}>
+                        <form className={styles.formCriarUsuario} onSubmit={handleCriarUsuario} key={usuarioSelecionado?.id ?? "novo"}>
+                            <h2>{usuarioSelecionado ? `Editar usuário: ${usuarioSelecionado.name}` : "Criar novo usuário"}</h2>
+                            <div className={styles.camposFormulario}>
+                                <label className={`${styles.campoFormulario} ${styles.campoNome}`} htmlFor="name">
+                                    <span>Nome</span>
+                                    <input id="name" name="name" type="text" defaultValue={usuarioSelecionado?.name ?? ""} placeholder="Digite o nome do usuário" />
+                                </label>
+
+                                <label className={`${styles.campoFormulario} ${styles.campoCpf}`} htmlFor="cpf">
+                                    <span>CPF</span>
+                                    <input id="cpf" name="cpf" type="text"
+                                        inputMode="numeric"
+                                        maxLength={14}
+                                        pattern="[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}"
+                                        title="Digite o CPF no formato 000.000.000-00"
+                                        defaultValue={usuarioSelecionado?.cpf ?? ""}
+                                        placeholder="000.000.000-00" />
+                                </label>
+
+                                <label className={`${styles.campoFormulario} ${styles.campoEmail}`} htmlFor="email">
+                                    <span>E-mail</span>
+                                    <input id="email" name="email" type="text" defaultValue={usuarioSelecionado?.email ?? ""} placeholder="Digite o e-mail do usuário" />
+                                </label>
+
+                                <label className={`${styles.campoFormulario} ${styles.campoPassword}`} htmlFor="password">
+                                    <span>{usuarioSelecionado ? "Nova senha (opcional)" : "Senha"}</span>
+                                    <span className={styles.campoSenha}>
+                                        <input id="password" name="password"
+                                            type={mostrarSenha ? "text" : "password"} required={!usuarioSelecionado}
+                                            className={styles.inputForm}
+                                            placeholder={usuarioSelecionado ? "Deixe em branco para manter a senha" : "Digite a senha"}
+                                        />
+                                        <button
+                                            type="button"
+                                            className={styles.botaoOlho}
+                                            onClick={() => setMostrarSenha(!mostrarSenha)}
+                                            aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                                            aria-pressed={mostrarSenha}
+                                        >
+                                            <EyeIcon aria-hidden="true" />
+                                        </button>
+                                    </span>
+                                </label>
+
+                                <label className={`${styles.campoFormulario} ${styles.campoRole}`} htmlFor="role">
+                                    <span>Perfil</span>
+                                    <select id="role" name="role" defaultValue={usuarioSelecionado?.role ?? ""}>
+                                        <option value="">Selecione o perfil</option>
+                                        <option value="DEVELOPER">Desenvolvedor</option>
+                                        <option value="DIRECTOR">Diretor</option>
+                                    </select>
+                                </label>
+                                <div className={`${styles.acoesFormulario} ${styles.acoesCriacao}`}>
+                                    <button type="button" className="buttonLimpar" onClick={() => {
+                                        setMostrarForms(false);
+                                        setUsuarioSelecionado(null);
+                                    }}>Cancelar</button>
+                                    <button type="submit" className="buttonPrimary">{usuarioSelecionado ? "Salvar alterações" : "Criar usuário"}</button>
+                                </div>
+                            </div>
+                        </form>
+                    </Card>
+                )}
             </div>
         </div>
     )
