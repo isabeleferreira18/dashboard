@@ -4,11 +4,12 @@ import styles from "./styles.module.css";
 import { Tabela } from "../tabelas";
 import { getStatusClass, getStatusLabel } from "../../utils/statusVendas";
 import type { Venda, VendasResposta, EntePublico, FiltrosVendasResposta } from "./types";
+import { mensagensErros } from "../../utils/mensagensErros";
 
 const colunasVendas = [
-    {titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
-    {titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}` },
-    {titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
+    { titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
+    { titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}` },
+    { titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
     {
         titulo: "Status",
         renderizar: (venda: Venda) => (
@@ -17,8 +18,8 @@ const colunasVendas = [
             </span>
         ),
     },
-    {titulo: "Valor", renderizar: (venda: Venda) => new Intl.NumberFormat("pt-BR", {style: "currency", currency: "BRL",}).format(venda.amount)},
-    {titulo: "Data", renderizar: (venda: Venda) => new Date(venda.createdAt).toLocaleString("pt-BR")},
+    { titulo: "Valor", renderizar: (venda: Venda) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", }).format(venda.amount) },
+    { titulo: "Data", renderizar: (venda: Venda) => new Date(venda.createdAt).toLocaleString("pt-BR") },
 ];
 
 export function Vendas() {
@@ -27,22 +28,13 @@ export function Vendas() {
     const [buscaEnte, setBuscaEnte] = useState("");
     const [datasAbertas, setDatasAbertas] = useState<string[]>([]);
 
-    async function getVendas(startDate?: string, endDate?: string, publicEntityId?: number, brands?: string, statuses?: string): Promise<VendasResposta> {
-        const params = new URLSearchParams();
-        if (startDate) params.set("startDate", startDate);
-        if (endDate) params.set("endDate", endDate);
-        if (publicEntityId !== undefined) params.set("publicEntityId", String(publicEntityId));
-        if (brands) params.set("brand", brands);
-        if (statuses) params.set("status", statuses);
-
-        const query = params.size > 0 ? `?${params.toString()}` : "";
+    async function buscar<T>(rota: string): Promise<T> {
         const token = localStorage.getItem("accessToken");
 
         if (!token) {
             throw new Error("Token de autenticação não encontrado. Faça login novamente.");
         }
-
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/sales${query}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}${rota}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: "application/json",
@@ -50,11 +42,22 @@ export function Vendas() {
         });
 
         if (!res.ok) {
-            throw new Error(`Falha ao buscar dados do dashboard (HTTP ${res.status})`);
+            throw new Error(mensagensErros(res.status));
         }
+        return (await res.json()) as T;
+    }
 
-        const resultado = (await res.json()) as VendasResposta;
-        return resultado;
+    async function getVendas(startDate?: string, endDate?: string, publicEntityId?: number, brands?: string, statuses?: string): Promise<VendasResposta> {
+        const params = new URLSearchParams();
+
+        if (startDate) params.set("startDate", startDate);
+        if (endDate) params.set("endDate", endDate);
+        if (publicEntityId !== undefined) params.set("publicEntityId", String(publicEntityId));
+        if (brands) params.set("brand", brands);
+        if (statuses) params.set("status", statuses);
+
+        const query = params.size > 0 ? `?${params.toString()}` : "";
+        return buscar<VendasResposta>(`/sales${query}`);
     }
 
     useEffect(() => {
@@ -69,27 +72,7 @@ export function Vendas() {
 
     useEffect(() => {
         async function getFiltros() {
-            const token = localStorage.getItem("accessToken");
-
-            if (!token) {
-                throw new Error("Token de autenticação não encontrado.");
-            }
-
-            const res = await fetch(
-                `${import.meta.env.VITE_API_URL}/sales/filters`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: "application/json",
-                    },
-                }
-            );
-
-            if (!res.ok) {
-                throw new Error(`Falha ao buscar filtros (HTTP ${res.status})`);
-            }
-
-            const dados = (await res.json()) as FiltrosVendasResposta;
+            const dados = await buscar<FiltrosVendasResposta>("/sales/filters");
             setEntesPublicos(dados.publicEntities);
         }
 
@@ -114,17 +97,12 @@ export function Vendas() {
         if (nomeEnte && !enteSelecionado) {
             alert("Selecione um ente público válido.");
             return;
-        }
-
-        if (typeof startDate !== "string" || typeof endDate !== "string") {
+        } if (typeof startDate !== "string" || typeof endDate !== "string") {
             return;
-        }
-
-        if (startDate && endDate && startDate > endDate) {
+        } if (startDate && endDate && startDate > endDate) {
             alert("A data inicial deve ser anterior ou igual à data final.");
             return;
-        }
-        if (
+        } if (
             typeof startDate !== "string" ||
             typeof endDate !== "string" ||
             typeof brand !== "string" ||
@@ -137,7 +115,7 @@ export function Vendas() {
             const resultadoVendas = await getVendas(startDate, endDate, enteSelecionado?.id, brand, status);
             setVendas(resultadoVendas.groups);
         } catch (error: unknown) {
-            console.error("Erro ao buscar dados do dashboard:", error);
+            console.error("Erro ao buscar dados das vendas", error);
         }
     }
 
