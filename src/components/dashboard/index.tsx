@@ -8,7 +8,8 @@ import { SalesByBrand } from "../graficos/salesByBrand";
 import { Tabela } from "../tabelas";
 import styles from "./styles.module.css";
 import { getStatusClass, getStatusLabel } from "../../utils/statusVendas";
-
+import { useAuthContext } from "../../contexts/useAuthContext";
+import { mensagensErros } from "../../utils/mensagensErros";
 
 type DashboardData = {
     cards: {
@@ -54,9 +55,9 @@ type VendasResposta = {
 };
 
 const colunasVendas = [
-    {titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}`},
-    {titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name},
-    {titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
+    { titulo: "Código", renderizar: (venda: Venda) => `#${venda.id}` },
+    { titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
+    { titulo: "Bandeira", renderizar: (venda: Venda) => venda.brand },
     {
         titulo: "Status",
         renderizar: (venda: Venda) => (
@@ -65,8 +66,8 @@ const colunasVendas = [
             </span>
         ),
     },
-    {titulo: "Valor", renderizar: (venda: Venda) => new Intl.NumberFormat("pt-BR", {style: "currency", currency: "BRL",}).format(venda.amount)},
-    {titulo: "Data", renderizar: (venda: Venda) => new Date(venda.createdAt).toLocaleString("pt-BR")},
+    { titulo: "Valor", renderizar: (venda: Venda) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", }).format(venda.amount) },
+    { titulo: "Data", renderizar: (venda: Venda) => new Date(venda.createdAt).toLocaleString("pt-BR") },
 ];
 
 const formatarMoeda = (valor: number) =>
@@ -75,84 +76,59 @@ const formatarMoeda = (valor: number) =>
         currency: "BRL",
     }).format(valor);
 
-
 export function Dashboard() {
+    const auth = useAuthContext();
     const [dados, setDados] = useState<DashboardData | null>(null);
     const [vendas, setVendas] = useState<Venda[]>([]);
+    const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState<string | null>(null);
 
-    async function getDashboard(startDate?: string, endDate?: string): Promise<DashboardData> {
+    async function buscar<T>(rota: string, startDate?: string, endDate?: string): Promise<T> {
         const params = new URLSearchParams();
         if (startDate) params.set("startDate", startDate);
         if (endDate) params.set("endDate", endDate);
-
         const query = params.size > 0 ? `?${params.toString()}` : "";
         const token = localStorage.getItem("accessToken");
 
-        if (!token) {
-            throw new Error("Token de autenticação não encontrado. Faça login novamente.");
-        }
-
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/dashboard${query}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}${rota}${query}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                Accept: "application/json",
+                Accept: "application/json"
             },
         });
-
-        if (!res.ok) {
-            throw new Error(`Falha ao buscar dados do dashboard (HTTP ${res.status})`);
+        if (res.status === 401) {
+            auth.logout();
+            throw new Error("Sessão expirada. Faça login novamente.");
         }
-
-        const resultado = (await res.json()) as DashboardData;
-
-        return resultado;
+        if (!res.ok) {
+            throw new Error(mensagensErros(res.status));
+        }
+        return (await res.json()) as T;
     }
-    async function getVendas(startDate?: string, endDate?: string): Promise<VendasResposta> {
-        const params = new URLSearchParams();
-        if (startDate) params.set("startDate", startDate);
-        if (endDate) params.set("endDate", endDate);
-
-        const query = params.size > 0 ? `?${params.toString()}` : "";
-        const token = localStorage.getItem("accessToken");
-
-        if (!token) {
-            throw new Error("Token de autenticação não encontrado. Faça login novamente.");
+    
+    async function carregar(startDate?: string, endDate?: string) {
+        setCarregando(true);
+        setErro(null);
+        try {
+            const [dashboard, vendasResposta] = await Promise.all([
+                buscar<DashboardData>("/dashboard", startDate, endDate),
+                buscar<VendasResposta>("/sales", startDate, endDate),
+            ]);
+            setDados(dashboard);
+            setVendas(vendasResposta.groups.flatMap((grupo) => grupo.sales));
+        } catch (error: unknown) {
+            setErro(error instanceof Error ? error.message : "Erro inesperado");
+        } finally {
+            setCarregando(false);
         }
-
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/sales${query}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/json",
-            },
-        });
-
-        if (!res.ok) {
-            throw new Error(`Falha ao buscar dados do dashboard (HTTP ${res.status})`);
-        }
-
-        const resultado = (await res.json()) as VendasResposta;
-        return resultado;
     }
 
     useEffect(() => {
-        getDashboard()
-            .then(setDados)
-            .catch((error: unknown) => {
-                console.error("Erro ao carregar o dashboard:", error);
-            });
-        getVendas()
-            .then((resultado) => {
-                setVendas(resultado.groups.flatMap((grupo) => grupo.sales));
-            })
-            .catch((error: unknown) => {
-                console.error("Erro ao carregar as Vendas:", error);
-            });
+        carregar();
     }, []);
-
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
         const formData = new FormData(event.currentTarget);
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
@@ -165,15 +141,7 @@ export function Dashboard() {
             alert("A data inicial deve ser anterior ou igual à data final.");
             return;
         }
-
-        try {
-            const resultado = await getDashboard(startDate, endDate);
-            setDados(resultado);
-            const resultadoVendas = await getVendas(startDate, endDate);
-            setVendas(resultadoVendas.groups.flatMap((grupo) => grupo.sales));
-        } catch (error: unknown) {
-            console.error("Erro ao buscar dados do dashboard:", error);
-        }
+        carregar(startDate, endDate);
     }
 
     return (
@@ -189,6 +157,13 @@ export function Dashboard() {
                         <button type="submit">Aplicar</button>
                     </form>
                 </div>
+                {erro && (
+                    <div role="alert">
+                        <p>{erro}</p>
+                        <button type="button" onClick={() => carregar()}>Tentar novamente</button>
+                    </div>
+                )}
+                {carregando && <p>Carregando...</p>}
             </div>
 
             <div className={styles.miniCards}>
@@ -224,15 +199,23 @@ export function Dashboard() {
 
             <div className={styles.graficosCards}>
                 <Card>
-                    <h1> Vendas por Dia </h1>
-                    <SalesByDay data={dados?.salesByDay ?? []} />
+                    <h2> Vendas por Dia </h2>
+                    {dados && dados.salesByDay.length > 0
+                        ? <SalesByDay data={dados.salesByDay} />
+                        : <p className={styles.semDados}>Sem dados no período</p>}
                 </Card>
 
-                <Card><h1> Vendas por Bandeira </h1>
-                    <SalesByBrand data={dados?.salesByBrand ?? []} />
+                <Card>
+                    <h2> Vendas por Bandeira </h2>
+                    {dados && dados.salesByBrand.length > 0
+                        ? <SalesByBrand data={dados.salesByBrand} />
+                        : <p className={styles.semDados}>Sem dados no período</p>}
                 </Card>
-                <Card><h1> Vendas por Status </h1>
-                    <SalesByStatus data={dados?.salesByStatus ?? []} />
+                <Card>
+                    <h2> Vendas por Status </h2>
+                    {dados && dados.salesByStatus.length > 0
+                        ? <SalesByStatus data={dados.salesByStatus} />
+                        : <p className={styles.semDados}>Sem dados no período</p>}
                 </Card>
             </div>
 
@@ -240,12 +223,16 @@ export function Dashboard() {
                 <Card>
                     <h1> Últimas vendas </h1>
                     <div className={styles.contentTable}>
-                        <Tabela
-                            dados={(vendas)}
-                            colunas={colunasVendas}
-                            obterChave={(venda) => venda.id}
-                            maxHeight={280}
-                        />
+                        {vendas.length > 0 ? (
+                            <Tabela
+                                dados={(vendas)}
+                                colunas={colunasVendas}
+                                obterChave={(venda) => venda.id}
+                                maxHeight={280}
+                            />
+                        ) : (
+                            <p className={styles.semDados}>Nenhuma venda no período</p>
+                        )}
                     </div>
                 </Card>
             </div>
