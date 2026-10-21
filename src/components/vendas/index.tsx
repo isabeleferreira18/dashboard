@@ -3,18 +3,7 @@ import { ChevronDown, Funnel } from "lucide-react";
 import styles from "./styles.module.css";
 import { Tabela } from "../tabelas";
 import { getStatusClass, getStatusLabel } from "../../utils/statusVendas";
-
-type Venda = {
-    id: number;
-    amount: number;
-    brand: string;
-    publicEntity: {
-        id: number;
-        name: string
-    };
-    status: string;
-    createdAt: string;
-}
+import type { Venda, VendasResposta, EntePublico, FiltrosVendasResposta } from "./types";
 
 const colunasVendas = [
     {titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
@@ -31,24 +20,6 @@ const colunasVendas = [
     {titulo: "Valor", renderizar: (venda: Venda) => new Intl.NumberFormat("pt-BR", {style: "currency", currency: "BRL",}).format(venda.amount)},
     {titulo: "Data", renderizar: (venda: Venda) => new Date(venda.createdAt).toLocaleString("pt-BR")},
 ];
-
-type VendasResposta = {
-    groups: {
-        date: string;
-        sales: Venda[];
-    }[];
-};
-
-type EntePublico = {
-    id: number;
-    name: string;
-};
-
-type FiltrosVendasResposta = {
-    publicEntities: EntePublico[];
-    brands: Venda["brand"][];
-    statuses: Venda["status"][];
-}
 
 export function Vendas() {
     const [vendas, setVendas] = useState<VendasResposta["groups"]>([]);
