@@ -17,8 +17,18 @@ export function Login() {
         const password = formData.get("password");
 
         if (typeof cpf !== "string" || typeof password !== "string") {
+            setErro("Preencha o CPF e a senha.");
             return;
         }
+        if (!cpf.trim() || !password) {
+            setErro("Preencha o CPF e a senha.");
+            return;
+        }
+        if (!/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf)) {
+            setErro("Digite o CPF no formato 000.000.000-00.");
+            return;
+        }
+
         setErro(null);
         setEnviando(true);
         try {
@@ -39,14 +49,13 @@ export function Login() {
     return (
         <div className={styles.loginPage}>
             <div className={styles.loginContent}>
-                <form onSubmit={handleSubmit} className={styles.formLogin}>
+                <form onSubmit={handleSubmit} className={styles.formLogin} noValidate>
                     <h1 className={styles.title}> Bem vindo </h1>
                     <p className={styles.title}> Acesse o Backoffice </p>
                     <label htmlFor="cpf"> CPF </label>
                     <input id="cpf" name="cpf" type="text"
                         maxLength={14}
-                        pattern="[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}"
-                        title="Digite o CPF no formato 000.000.000-00"
+                        inputMode="numeric"
                         required className={styles.inputForm}
                         placeholder="000.000.000-00" />
 

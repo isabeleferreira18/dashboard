@@ -47,3 +47,24 @@ body{
   background-color: #EDEFF4;
   color: #1d3d66;
 }
+
+@media (max-width: 768px) {
+  .pageContentWithSidebar {
+    margin-left: 0;
+    padding: 20px 16px;
+  }
+
+  .pageTitle {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 540px) {
+  .pageContentWithSidebar {
+    padding: 16px 12px;
+  }
+
+  .pageTitle {
+    font-size: 24px;
+  }
+}

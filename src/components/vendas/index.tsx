@@ -4,7 +4,7 @@ import styles from "./styles.module.css";
 import { Tabela } from "../tabelas";
 import { getStatusClass, getStatusLabel } from "../../utils/statusVendas";
 import type { Venda, VendasResposta, EntePublico, FiltrosVendasResposta } from "./types";
-import { mensagensErros } from "../../utils/mensagensErros";
+import { buscar, getVendas } from "./api";
 
 const colunasVendas = [
     { titulo: "Ente Público", renderizar: (venda: Venda) => venda.publicEntity.name },
@@ -22,74 +22,70 @@ const colunasVendas = [
     { titulo: "Data", renderizar: (venda: Venda) => new Date(venda.createdAt).toLocaleString("pt-BR") },
 ];
 
+type EstadoConsulta = "carregando" | "sucesso" | "erro";
+
+type FiltrosConsultaVendas = {
+    startDate?: string;
+    endDate?: string;
+    publicEntityId?: number;
+    brand?: string;
+    status?: string;
+};
+
+const filtrosVazios: FiltrosConsultaVendas = {};
+
 export function Vendas() {
     const [vendas, setVendas] = useState<VendasResposta["groups"]>([]);
     const [entesPublicos, setEntesPublicos] = useState<EntePublico[]>([]);
     const [buscaEnte, setBuscaEnte] = useState("");
     const [datasAbertas, setDatasAbertas] = useState<string[]>([]);
+    const [estadoVendas, setEstadoVendas] = useState<EstadoConsulta>("carregando");
+    const [erroVendas, setErroVendas] = useState<string | null>(null);
+    const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosConsultaVendas>(filtrosVazios);
+    const [estadoFiltros, setEstadoFiltros] = useState<EstadoConsulta>("carregando");
+    const [erroFiltros, setErroFiltros] = useState<string | null>(null);
 
-    async function buscar<T>(rota: string): Promise<T> {
-        const token = localStorage.getItem("accessToken");
+    async function carregarVendas(filtros: FiltrosConsultaVendas = filtrosAplicados) {
+        setEstadoVendas("carregando");
+        setErroVendas(null);
+        setFiltrosAplicados(filtros);
 
-        if (!token) {
-            throw new Error("Token de autenticação não encontrado. Faça login novamente.");
+        try {
+            const resultado = await getVendas(
+                filtros.startDate,
+                filtros.endDate,
+                filtros.publicEntityId,
+                filtros.brand,
+                filtros.status
+            );
+            setVendas(resultado.groups);
+            setEstadoVendas("sucesso");
+        } catch (error: unknown) {
+            setErroVendas(error instanceof Error ? error.message : "Não foi possível carregar as vendas.");
+            setEstadoVendas("erro");
         }
-        const res = await fetch(`${import.meta.env.VITE_API_URL}${rota}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/json",
-            },
-        });
-
-        if (!res.ok) {
-            let mensagem = mensagensErros(res.status);
-
-            try {
-                const dados = await res.json() as { error?: { message?: string } };
-
-                if (dados.error?.message) {
-                    mensagem = dados.error.message;
-                }
-            } catch {
-            }
-
-            throw new Error(mensagem);
-        }
-        return (await res.json()) as T;
     }
 
-    async function getVendas(startDate?: string, endDate?: string, publicEntityId?: number, brands?: string, statuses?: string): Promise<VendasResposta> {
-        const params = new URLSearchParams();
+    async function carregarFiltros() {
+        setEstadoFiltros("carregando");
+        setErroFiltros(null);
 
-        if (startDate) params.set("startDate", startDate);
-        if (endDate) params.set("endDate", endDate);
-        if (publicEntityId !== undefined) params.set("publicEntityId", String(publicEntityId));
-        if (brands) params.set("brand", brands);
-        if (statuses) params.set("status", statuses);
-
-        const query = params.size > 0 ? `?${params.toString()}` : "";
-        return buscar<VendasResposta>(`/sales${query}`);
+        try {
+            const dados = await buscar<FiltrosVendasResposta>("/sales/filters");
+            setEntesPublicos(dados.publicEntities);
+            setEstadoFiltros("sucesso");
+        } catch (error: unknown) {
+            setErroFiltros(error instanceof Error ? error.message : "Não foi possível carregar os filtros.");
+            setEstadoFiltros("erro");
+        }
     }
 
     useEffect(() => {
-        getVendas()
-            .then((resultado) => {
-                setVendas(resultado.groups);
-            })
-            .catch((error: unknown) => {
-                console.error("Erro ao carregar as Vendas:", error);
-            });
+        void carregarVendas(filtrosVazios);
     }, []);
 
     useEffect(() => {
-        async function getFiltros() {
-            const dados = await buscar<FiltrosVendasResposta>("/sales/filters");
-            setEntesPublicos(dados.publicEntities);
-        }
-
-        getFiltros().catch((error: unknown) => {
-            console.error("Erro ao carregar os filtros:", error);
-        });
+        void carregarFiltros();
     }, []);
 
 
@@ -122,23 +118,18 @@ export function Vendas() {
             return;
         }
 
-        try {
-            const resultadoVendas = await getVendas(startDate, endDate, enteSelecionado?.id, brand, status);
-            setVendas(resultadoVendas.groups);
-        } catch (error: unknown) {
-            console.error("Erro ao buscar dados das vendas", error);
-        }
+        await carregarVendas({
+            startDate,
+            endDate,
+            publicEntityId: enteSelecionado?.id,
+            brand,
+            status,
+        });
     }
 
     async function handleLimparFiltros() {
         setBuscaEnte("");
-
-        try {
-            const resultado = await getVendas();
-            setVendas(resultado.groups);
-        } catch (error: unknown) {
-            console.error("Erro ao carregar as vendas:", error);
-        }
+        await carregarVendas(filtrosVazios);
     }
     return (
         <div>
@@ -159,7 +150,9 @@ export function Vendas() {
                             value={buscaEnte}
                             onChange={(event) => setBuscaEnte(event.target.value)}
                             list="entes-publicos"
-                            placeholder="Digite um ente público" />
+                            placeholder={estadoFiltros === "carregando" ? "Carregando opções..." : "Digite um ente público"}
+                            disabled={estadoFiltros === "carregando"}
+                            aria-busy={estadoFiltros === "carregando"} />
                         <datalist id="entes-publicos">
                             {entesPublicos.map((ente) => (
                                 <option key={ente.id} value={ente.name} />
@@ -200,10 +193,32 @@ export function Vendas() {
                         </button>
                     </div>
                 </form>
+                {estadoFiltros === "erro" && (
+                    <div role="alert">
+                        <p>{erroFiltros}</p>
+                        <button type="button" onClick={() => void carregarFiltros()}>
+                            Tentar carregar opções novamente
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className={styles.gruposVendas}>
-                {vendas.map((grupo) => {
+                {estadoVendas === "carregando" && (
+                    <p role="status">Carregando vendas...</p>
+                )}
+                {estadoVendas === "erro" && (
+                    <div role="alert">
+                        <p>{erroVendas}</p>
+                        <button type="button" onClick={() => void carregarVendas()}>
+                            Tentar novamente
+                        </button>
+                    </div>
+                )}
+                {estadoVendas === "sucesso" && vendas.length === 0 && (
+                    <p>Nenhuma venda encontrada.</p>
+                )}
+                {estadoVendas === "sucesso" && vendas.map((grupo) => {
                     const aberta = datasAbertas.includes(grupo.date);
                     const valorTotal = grupo.sales.reduce(
                         (soma, venda) => soma + venda.amount, 0
@@ -247,7 +262,6 @@ export function Vendas() {
                         </section>
                     );
                 })}
-                {vendas.length === 0 && <p> Nenhuma venda encontrada. </p>}
             </div>
         </div>
 

@@ -122,7 +122,6 @@ export function Dashboard() {
             setCarregando(false);
         }
     }
-
     useEffect(() => {
         carregar();
     }, []);
@@ -135,9 +134,7 @@ export function Dashboard() {
 
         if (typeof startDate !== "string" || typeof endDate !== "string" || !startDate || !endDate) {
             return;
-        }
-
-        if (startDate > endDate) {
+        } if (startDate > endDate) {
             alert("A data inicial deve ser anterior ou igual à data final.");
             return;
         }

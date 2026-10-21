@@ -152,3 +152,90 @@
     border: none;
     font-size: 16px;
 }
+
+@media (max-width: 768px) {
+    .sideBar {
+        position: sticky;
+        z-index: 5;
+        top: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        height: auto;
+        padding: 10px 16px;
+    }
+
+    .users {
+        flex: 0 0 auto;
+        width: auto;
+        padding: 0;
+    }
+
+    .menu {
+        flex: 1 1 auto;
+        width: auto;
+        height: auto;
+        min-width: 0;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 4px;
+        padding: 0;
+    }
+
+    .menuItem {
+        width: auto;
+        min-height: 40px;
+        padding: 0 10px;
+        gap: 6px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .menuItem svg {
+        width: 20px;
+        height: 20px;
+        flex-basis: 20px;
+    }
+
+    .footerSidebar {
+        position: static;
+        flex: 0 0 auto;
+        width: auto;
+        transform: none;
+    }
+
+    .logOut {
+        width: auto;
+        height: 40px;
+        padding: 0 10px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 640px) {
+    .sideBar {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+
+    .users {
+        display: none;
+    }
+
+    .menu {
+        flex: 1 1 0;
+        justify-content: flex-start;
+        overflow-x: auto;
+    }
+
+    .menuItem {
+        padding: 0 8px;
+        font-size: 13px;
+    }
+
+    .footerSidebar {
+        margin-left: auto;
+    }
+}

@@ -7,7 +7,7 @@ import { Vendas } from "./components/vendas";
 import { useAuthContext } from "./contexts/useAuthContext";
 import { Usuarios } from "./components/usuarios";
 
-type Pagina = "dashboard" | "vendas" | "usuarios";
+export type Pagina = "dashboard" | "vendas" | "usuarios";
 
 export function App() {
   const auth = useAuthContext();
