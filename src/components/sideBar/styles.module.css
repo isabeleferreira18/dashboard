@@ -50,7 +50,6 @@
     stroke-width: 1.5px;
 }
 
-
 .footerSidebar {
     width: 184px;
     color: #EEEDF3;
@@ -68,7 +67,6 @@
 .footerSidebar p {
     margin: 0;
 }
-
 
 .menu {
     box-sizing: border-box;
@@ -123,14 +121,6 @@
     width: 24px;
     height: 24px;
     flex: 0 0 24px;
-}
-
-.buttonTheme {
-    border: none;
-    border-radius: 5px;
-    background-color: #00326A;
-    color: #EEEDF3;
-    font-size: 16px;
 }
 
 .logOut {

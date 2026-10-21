@@ -1,9 +1,8 @@
-import type { User } from "../../contexts/AuthContext";
-import { useAuthContext } from "../../contexts/useAuthContext";
-import styles from "./styles.module.css"
-import { ChartLine, House, LogOut, UserRound } from 'lucide-react';
-
-type Pagina = "dashboard" | "vendas" | "usuarios";
+    import type { User } from "../../contexts/AuthContext";
+    import { useAuthContext } from "../../contexts/useAuthContext";
+    import styles from "./styles.module.css"
+    import { ChartLine, House, LogOut, UserRound } from 'lucide-react';
+    import type { Pagina } from "../../App";
 
 type SideBarProps = {
     onNavigate: (pagina: Pagina) => void;
@@ -44,29 +43,24 @@ export function SideBar({ onNavigate, paginaAtual, user }: SideBarProps) {
                     <span>Vendas</span>
                 </button>
 
-                {auth.user?.role === "DEVELOPER" && (
-                    <button className={`${styles.menuItem} ${paginaAtual === "usuarios" ? styles.menuItemAtivo : ""}`}
-                        type="button"
-                        aria-current={paginaAtual === "usuarios" ? "page" : undefined}
-                        onClick={() => onNavigate("usuarios")}>
-                        <UserRound className={styles.imgUser} />
-                        <span>Usuários</span>
+                    {user.role === "DEVELOPER" && (
+                        <button className={`${styles.menuItem} ${paginaAtual === "usuarios" ? styles.menuItemAtivo : ""}`}
+                            type="button"
+                            aria-current={paginaAtual === "usuarios" ? "page" : undefined}
+                            onClick={() => onNavigate("usuarios")}>
+                            <UserRound className={styles.imgUser} />
+                            <span>Usuários</span>
+                        </button>
+                    )}  
+
+                </div>
+
+                <div className={styles.footerSidebar}>
+                    <button type="button" className={styles.logOut} onClick={auth.logout}>
+                        <LogOut size={18} />
+                        Sair
                     </button>
-                )}  
-
+                </div>
             </div>
-
-            <div className={styles.footerSidebar}>
-                <button className={styles.buttonTheme} type="button">
-                    <LogOut size={18} />
-                    Modo claro
-                </button>
-
-                <button className={styles.logOut} onClick={auth.logout}>
-                    <LogOut size={18} />
-                    Sair
-                </button>
-            </div>
-        </div>
-    )
-}
+        )
+    }
