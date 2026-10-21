@@ -1,17 +1,10 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Card } from "../card";
 import { Tabela } from "../tabelas";
 import styles from "./styles.module.css";
 import { EyeIcon, Funnel, Pencil, Search, Trash2 } from "lucide-react";
-
-type Usuario = {
-    id: number;
-    name: string;
-    cpf: string;
-    email: string;
-    role: string;
-    active: boolean,
-}
+import type { Usuario, UsuariosResposta } from "./types";
+import { getUsuarios, criarUsuarios, desativarUsuario, editarUsuario, alterarSenhaUsuario } from "./crud";
 
 const statusUsuarios: Record<string, string> = {
     true: "Ativo",
@@ -28,21 +21,30 @@ const perfilUsuario: Record<string, string> = {
     DEVELOPER: "Desenvolvedor"
 }
 
-type UsuariosResposta = {
-    items: Usuario[];
-};
-
 export function Usuarios() {
     const [usuarios, setUsuarios] = useState<UsuariosResposta["items"]>([]);
     const [buscaNome, setBuscaNome] = useState("");
     const [mostrarForms, setMostrarForms] = useState<boolean>(false);
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [usuarioSelecionado, setUsuarioSelecionado] = useState<Usuario | null>(null);
+    const [carregandoUsuarios, setCarregandoUsuarios] = useState(true);
+    const [erroUsuarios, setErroUsuarios] = useState<string | null>(null);
+    const [filtrosAplicados, setFiltrosAplicados] = useState({ nome: "", perfil: "", status: "" });
 
-    function handleEditarUsuario(usuario: Usuario) {
-        setUsuarioSelecionado(usuario);
-        setMostrarForms(true);
-    }
+    const carregarUsuarios = useCallback(async (nome = "", perfil = "", status = "") => {
+        setCarregandoUsuarios(true);
+        setErroUsuarios(null);
+        try {
+            const resultado = await getUsuarios(nome, perfil, status);
+            setUsuarios(resultado.items);
+            return true;
+        } catch (error: unknown) {
+            setErroUsuarios(error instanceof Error ? error.message : "Não foi possível carregar os usuários.");
+            return false;
+        } finally {
+            setCarregandoUsuarios(false);
+        }
+    }, []);
 
     const colunasUsuarios = [
         { titulo: "Nome", renderizar: (usuario: Usuario) => usuario.name },
@@ -89,208 +91,35 @@ export function Usuarios() {
         },
     ];
 
-    async function getUsuarios(name?: string, role?: string, status?: string): Promise<UsuariosResposta> {
-        const params = new URLSearchParams();
-        if (name) params.set("search", name);
-        if (role) params.set("role", role);
-        if (status) params.set("active", status);
-        const query = params.size > 0 ? `?${params.toString()}` : "";
-
-        const token = localStorage.getItem("accessToken");
-        const roleLogin = localStorage.getItem("role");
-
-        if (!token) {
-            throw new Error("Token de autenticação não encontrado. Faça login novamente.");
-        }
-
-        if (roleLogin !== "DEVELOPER") {
-            throw new Error("Você não tem autorização para listar usuários.");
-        }
-
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/users${query}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/json",
-            },
-        });
-
-        if (!res.ok) {
-            throw new Error(`Falha ao buscar dados do dashboard (HTTP ${res.status})`);
-        }
-
-        const resultado = (await res.json()) as UsuariosResposta;
-        return resultado;
-    }
-
     useEffect(() => {
-        getUsuarios()
-            .then((resultado) => {
-                setUsuarios(resultado.items);
-            })
-            .catch((error: unknown) => {
-                console.error("Erro ao carregar os usuários:", error);
-            });
-    }, []);
-
+        void carregarUsuarios();
+    }, [carregarUsuarios]);
+    
+    function handleEditarUsuario(usuario: Usuario) {
+        setUsuarioSelecionado(usuario);
+        setMostrarForms(true);
+    }
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const role = formData.get("role")?.toString() ?? "";
         const status = formData.get("active")?.toString() ?? "";
 
-        try {
-            const resultado = await getUsuarios(buscaNome.trim(), role, status);
-            setUsuarios(resultado.items);
-        } catch (error: unknown) {
-            console.error("Erro ao carregar os usuários:", error);
-        }
+        const filtros = { nome: buscaNome.trim(), perfil: role, status };
+        setFiltrosAplicados(filtros);
+        await carregarUsuarios(filtros.nome, filtros.perfil, filtros.status);
     }
 
     async function handleLimparFiltros() {
         setBuscaNome("");
-        try {
-            const resultado = await getUsuarios();
-            setUsuarios(resultado.items);
-        } catch (error: unknown) {
-            console.error("Erro ao carregar os usuários:", error);
-        }
-    }
-
-    async function criarUsuarios(name: string, cpf: string, email: string, password: string, role: string) {
-        const token = localStorage.getItem("accessToken");
-
-        if (!token) {
-            throw new Error("Token de autenticação não encontrado.");
-        }
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
-                cpf,
-                email,
-                password,
-                role,
-            })
-        })
-        if (!res.ok) {
-            let mensagemErro = `Falha ao criar usuário (HTTP ${res.status})`;
-
-            try {
-                const dadosErro = await res.json() as { error?: { message?: string } };
-                if (dadosErro.error?.message) {
-                    mensagemErro = dadosErro.error.message;
-                }
-            } catch {
-            }
-
-            throw new Error(mensagemErro);
-        }
-
-    }
-
-    async function editarUsuario(id: number, name?: string, cpf?: string, email?: string, role?: string) {
-        const token = localStorage.getItem("accessToken");
-
-        if (!token) {
-            throw new Error("Token de autenticação não encontrado.");
-        }
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}`, {
-            method: "PATCH",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
-                cpf,
-                email,
-                role,
-            })
-
-        })
-        if (!res.ok) {
-            let mensagemErro = `Falha ao alterar o usuário. (HTTP ${res.status})`;
-
-            try {
-                const dadosErro = await res.json() as { error?: { message?: string } };
-                if (dadosErro.error?.message) {
-                    mensagemErro = dadosErro.error.message;
-                }
-            } catch {
-            }
-            throw new Error(mensagemErro);
-        }
-    }
-
-    async function alterarSenhaUsuario(id: number, password: string) {
-        const token = localStorage.getItem("accessToken");
-
-        if (!token) {
-            throw new Error("Token de autenticação não encontrado.");
-        }
-
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}/password`, {
-            method: "PATCH",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ password }),
-        });
-
-        if (!res.ok) {
-            let mensagemErro = `Falha ao alterar a senha (HTTP ${res.status})`;
-
-            try {
-                const dadosErro = await res.json() as { error?: { message?: string } };
-                if (dadosErro.error?.message) {
-                    mensagemErro = dadosErro.error.message;
-                }
-            } catch {
-            }
-
-            throw new Error(mensagemErro);
-        }
-    }
-
-
-    async function desativarUsuario(id: number) {
-        const token = localStorage.getItem("accessToken");
-
-        if (!token) {
-            throw new Error("Token de autenticação não encontrado.");
-        }
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}`, {
-            method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        });
-
-        if (!res.ok) {
-            let mensagemErro = `Falha ao desativar usuário (HTTP ${res.status})`;
-
-            try {
-                const dadosErro = await res.json() as { error?: { message?: string } };
-                if (dadosErro.error?.message) {
-                    mensagemErro = dadosErro.error.message;
-                }
-            } catch {
-            }
-
-            throw new Error(mensagemErro);
-        }
+        setFiltrosAplicados({ nome: "", perfil: "", status: "" });
+        await carregarUsuarios();
     }
 
     async function handleDesativarUsuario(usuario: Usuario) {
         if (!window.confirm(`Deseja realmente desativar o usuário ${usuario.name}?`)) {
             return;
         }
-
         try {
             await desativarUsuario(usuario.id);
             setUsuarios((atuais) => atuais.map((item) =>
@@ -309,7 +138,6 @@ export function Usuarios() {
             alert("Selecione um usuário para editar.");
             return;
         }
-
         const formData = new FormData(event.currentTarget);
         const name = formData.get("name");
         const cpf = formData.get("cpf");
@@ -325,18 +153,15 @@ export function Usuarios() {
         ) {
             alert("Não foi possível ler os campos. Confira os dados e tente novamente.");
             return;
-        }
-
+        } 
         if (!name.trim() || !cpf.trim() || !email.trim()) {
             alert("Preencha nome, CPF e e-mail.");
             return;
-        }
-
+        } 
         if (password && password.length < 6) {
             alert("A nova senha deve ter pelo menos 6 caracteres.");
             return;
-        }
-
+        } 
         if (role !== "DIRECTOR" && role !== "DEVELOPER") {
             alert("Selecione um perfil válido.");
             return;
@@ -349,6 +174,7 @@ export function Usuarios() {
             email,
             role,
         };
+
         let dadosAtualizados = false;
 
         try {
@@ -368,7 +194,6 @@ export function Usuarios() {
             alert("Usuário atualizado com sucesso.");
         } catch (error: unknown) {
             console.error("Erro ao atualizar usuário:", error);
-
             if (dadosAtualizados) {
                 setUsuarios((atuais) => atuais.map((usuario) =>
                     usuario.id === usuarioSelecionado.id ? usuarioAtualizado : usuario
@@ -385,10 +210,6 @@ export function Usuarios() {
 
     async function handleCriarUsuario(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        if (usuarioSelecionado) {
-            alert("O formulário de edição está preenchido. A atualização pela API ainda não foi conectada.");
-            return;
-        }
         const formulario = event.currentTarget;
         const formData = new FormData(formulario);
         const name = formData.get("name");
@@ -404,24 +225,16 @@ export function Usuarios() {
         ) {
             alert("Não foi possível ler os campos. Confira os dados e tente novamente.");
             return;
-        }
-
-        if (!name.trim() || !cpf.trim() || !email.trim() || !password) {
+        } if (!name.trim() || !cpf.trim() || !email.trim() || !password) {
             alert("Preencha nome, CPF, e-mail e senha.");
             return;
-        }
-
-        if (password.length < 6) {
+        } if (password.length < 6) {
             alert("A senha deve ter pelo menos 6 caracteres.");
             return;
-        }
-
-        if (role !== "DIRECTOR" && role !== "DEVELOPER") {
+        } if (role !== "DIRECTOR" && role !== "DEVELOPER") {
             alert("Selecione um perfil válido.");
             return;
-        }
-
-        try {
+        } try {
             await criarUsuarios(name, cpf, email, password, role);
         } catch (error: unknown) {
             console.error("Erro ao criar usuário:", error);
@@ -433,11 +246,8 @@ export function Usuarios() {
         setMostrarSenha(false);
         alert("Usuário criado com sucesso.");
 
-        try {
-            const resultado = await getUsuarios();
-            setUsuarios(resultado.items);
-        } catch (error: unknown) {
-            console.error("Usuário criado, mas não foi possível atualizar a lista:", error);
+        const listaAtualizada = await carregarUsuarios();
+        if (!listaAtualizada) {
             alert("Usuário criado, mas não foi possível atualizar a lista. Atualize a página para vê-lo.");
         }
     }
@@ -447,8 +257,10 @@ export function Usuarios() {
             <div className={styles.headerUsuarios}>
                 <h1 className="pageTitle"> Usuários </h1>
                 <button type="button" className="buttonPrimary" onClick={() => {
+                    const formularioDeCriacaoJaAberto = mostrarForms && usuarioSelecionado === null;
                     setUsuarioSelecionado(null);
-                    setMostrarForms(!mostrarForms);
+                    setMostrarSenha(false);
+                    setMostrarForms(!formularioDeCriacaoJaAberto);
                 }}>
                     + Novo usuário
                 </button>
@@ -492,11 +304,32 @@ export function Usuarios() {
             <div className={styles.tabelaUsuario}>
                 <Card>
                     <div className={styles.contentTable}>
-                        <Tabela
-                            dados={(usuarios)}
-                            colunas={colunasUsuarios}
-                            obterChave={(usuario) => usuario.id}
-                        />
+                        {carregandoUsuarios ? (
+                            <p className={styles.estadoConsulta} role="status">Carregando usuários...</p>
+                        ) : erroUsuarios ? (
+                            <div className={styles.estadoConsulta}>
+                                <p className={styles.erroConsulta} role="alert">{erroUsuarios}</p>
+                                <button
+                                    type="button"
+                                    className="buttonPrimary"
+                                    onClick={() => void carregarUsuarios(
+                                        filtrosAplicados.nome,
+                                        filtrosAplicados.perfil,
+                                        filtrosAplicados.status
+                                    )}
+                                >
+                                    Tentar novamente
+                                </button>
+                            </div>
+                        ) : usuarios.length === 0 ? (
+                            <p className={styles.estadoConsulta} role="status">Nenhum usuário encontrado.</p>
+                        ) : (
+                            <Tabela
+                                dados={usuarios}
+                                colunas={colunasUsuarios}
+                                obterChave={(usuario) => usuario.id}
+                            />
+                        )}
                     </div>
                 </Card>
 
