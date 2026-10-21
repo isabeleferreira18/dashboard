@@ -42,7 +42,18 @@ export function Vendas() {
         });
 
         if (!res.ok) {
-            throw new Error(mensagensErros(res.status));
+            let mensagem = mensagensErros(res.status);
+
+            try {
+                const dados = await res.json() as { error?: { message?: string } };
+
+                if (dados.error?.message) {
+                    mensagem = dados.error.message;
+                }
+            } catch {
+            }
+
+            throw new Error(mensagem);
         }
         return (await res.json()) as T;
     }
@@ -147,7 +158,8 @@ export function Vendas() {
                         <input type="text"
                             value={buscaEnte}
                             onChange={(event) => setBuscaEnte(event.target.value)}
-                            list="entes-publicos" />
+                            list="entes-publicos"
+                            placeholder="Digite um ente público" />
                         <datalist id="entes-publicos">
                             {entesPublicos.map((ente) => (
                                 <option key={ente.id} value={ente.name} />
@@ -221,7 +233,7 @@ export function Vendas() {
                                     {new Date(`${grupo.date}T00:00:00`).toLocaleDateString("pt-BR")}
                                 </span>
                                 <span className={styles.resumoGrupo}>
-                                    <span>Total do dia: R$ {valorTotal}</span>
+                                    <span>Total do dia: {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", }).format(valorTotal)}</span>
                                     <span>{qtdVendas} vendas</span>
                                 </span>
                             </button>
